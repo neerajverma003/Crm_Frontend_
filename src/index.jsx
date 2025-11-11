@@ -1,0 +1,353 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+import "@coreui/coreui/dist/css/coreui.min.css";
+import "./index.css";
+import App from "./App.jsx";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// 🧩 Layouts & Components
+import ScreenLayout from "./newComponents/ScreenLayout.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
+// 🧭 Pages
+import MainDashboard from "./newComponents/dashboard/MainDashboard.jsx";
+import MainLeadManagement from "./newComponents/leadManagement/MainLeadManagement.jsx";
+import MainUserManagement from "./newComponents/UserManagement/MainUserManagement.jsx";
+import MainAttendance from "./newComponents/attendance/MainAttendance.jsx";
+import SuperAdminAttendance from "./newComponents/attendance/SuperAdminAttendance.jsx"; // 🆕
+import MainAllCompanies from "./newComponents/allCompanies/MainAllCompanies.jsx";
+import MainSettings from "./newComponents/Settings/MainSettings.jsx";
+import AddLeadShortcut from "./newComponents/dashboard/AddLeadShortcut.jsx";
+import AddUserShortcut from "./newComponents/dashboard/AddUserShortcut.jsx";
+import ClockInOutShortcut from "./newComponents/dashboard/ClockInOutShortcut.jsx";
+import ViewReportsShortcut from "./newComponents/dashboard/ViewReportsShortcut.jsx";
+import ForgotPassword from "./newComponents/loginSection/ForgotPassword.jsx";
+import ResetLink from "./newComponents/loginSection/ResetLink.jsx";
+import ChangePassword from "./newComponents/loginSection/ChangePassword.jsx";
+import EditUser from "./newComponents/UserManagement/EditUser.jsx";
+import { LeaveAdmin } from "./views/admin/leaveManagement/LeaveAdmin.jsx";
+import { LeavePage } from "./views/employee/LeaveSection/LeavePage.jsx";
+import ChequeExpense from "./newComponents/expense/ChequeExpense.jsx";
+import DailyExpense from "./newComponents/expense/DailyExpense.jsx";
+import Department from "./newComponents/department/Department.jsx";
+import Designation from "./newComponents/designation/Designation.jsx";
+import AddMyLead from "./newComponents/leadManagement/AddMyLead.jsx"
+import AddAdmin from "./newComponents/UserManagement/AddAdmin.jsx"
+import AssignCompany from "./newComponents/UserManagement/AssignCompany.jsx";
+import AssignLead from "./newComponents/leadManagement/AssignLead.jsx";
+import TodaysLead from "./newComponents/leadManagement/TodaysLead.jsx";
+import FollowLead from "./newComponents/leadManagement/FollowLead.jsx";
+import AssignRole from "./newComponents/UserManagement/AssignRole.jsx";
+import AddRole from "./newComponents/allCompanies/AddRole.jsx";
+import CreateDestination from "./newComponents/Operations/CreateDestination.jsx";
+import CreateHotel from "./newComponents/Operations/CreateHotel.jsx";
+import CreateState from "./newComponents/Operations/CreateState.jsx";
+import AssignedRoles from "./newComponents/UserManagement/AssignedRoles.jsx";
+import CompanyDashboard from "./newComponents/dashboard/CompanyDashboard.jsx";
+import AddReport from "./newComponents/AddReport.jsx";
+// ✅ Role groups
+const roles = {
+  all: ["admin", "employee", "superadmin"],
+  adminOnly: ["admin", "superadmin"],
+  employeeOnly: ["employee"],
+  superAdminOnly: ["superadmin"],
+};
+
+// ✅ Role-based Attendance Wrapper
+const AttendanceRoute = () => {
+  const role = localStorage.getItem("role")?.toLowerCase();
+
+  if (role === "superadmin") return <SuperAdminAttendance />;
+  return <MainAttendance />;
+};
+
+// ✅ ROUTER CONFIGURATION
+const router = createBrowserRouter([
+  // 🟢 Public Routes
+  { path: "/", element: <App /> }, // Login
+  { path: "/forgot-password", element: <ForgotPassword /> },
+  { path: "/reset-password", element: <ResetLink /> },
+  { path: "/change-password", element: <ChangePassword /> },
+
+  // 🔒 Protected Routes (inside ScreenLayout)
+  {
+    element: (
+      <ProtectedRoute>
+        <ScreenLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      // ✅ Common (Admin, Employee, SuperAdmin)
+      {
+        path: "/dashboard",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <MainDashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/lead-management",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <MainLeadManagement />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/assignlead",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <AssignLead />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/todaysleads",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <TodaysLead />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/followupleads",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <FollowLead />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/attendance",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <AttendanceRoute /> {/* 👈 Dynamic Attendance Loader */}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/settings",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <MainSettings />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/clock-in-out",
+        element: (
+          <ProtectedRoute allowedRoles={roles.employeeOnly}>
+            <ClockInOutShortcut />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/view-reports",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <ViewReportsShortcut />
+          </ProtectedRoute>
+        ),
+      },
+
+      // ✅ Admin + SuperAdmin
+      {
+        path: "/user-management",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <MainUserManagement />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/assigned-roles",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <AssignedRoles />
+          </ProtectedRoute>
+        ),
+      },
+       {
+        path: "/assignrole",
+        element: (
+          <ProtectedRoute allowedRoles={roles.superAdminOnly}>
+            <AssignRole />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/companies",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <MainAllCompanies />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path:"/companydashboard/:id",
+        element:(
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <CompanyDashboard/>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "/edit/:role/:id",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <EditUser />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/add-user",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <AddUserShortcut />
+          </ProtectedRoute>
+        ),
+      },
+          {
+        path: "/add-admin",
+        element: (
+          <ProtectedRoute allowedRoles={roles.superAdminOnly}>
+            <AddAdmin />
+          </ProtectedRoute>
+        ),
+      },
+        {
+        path: "/assigncompany",
+        element: (
+          <ProtectedRoute allowedRoles={roles.superAdminOnly}>
+            <AssignCompany />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/addrole",
+        element: (
+          <ProtectedRoute allowedRoles={roles.superAdminOnly}>
+            <AddRole />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/leaves",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <LeaveAdmin />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dailyexpenses",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <DailyExpense />
+          </ProtectedRoute>
+        ),
+      },
+   {
+        path: "/createstate",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <CreateState />
+          </ProtectedRoute>
+        ),
+      },
+        {
+        path: "/createdestination",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <CreateDestination />
+          </ProtectedRoute>
+        ),
+      },
+      
+       {
+        path: "/createhotel",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <CreateHotel />
+          </ProtectedRoute>
+        ),
+      },
+      ,
+
+      // ✅ Employee only
+      {
+        path: "/department",
+        element: (
+          <ProtectedRoute allowedRoles={roles.superAdminOnly}>
+            <Department />
+          </ProtectedRoute>
+        ),
+      },
+       {
+        path: "/designation",
+        element: (
+          <ProtectedRoute allowedRoles={roles.superAdminOnly}>
+            <Designation />s
+          </ProtectedRoute>
+        ),
+      },
+      
+      {
+        path: "/cheque",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <ChequeExpense />
+          </ProtectedRoute>
+        ),
+      },
+
+      // ✅ Employee only
+      {
+        path: "/leave-apply",
+        element: (
+          <ProtectedRoute allowedRoles={roles.employeeOnly}>
+            <LeavePage />
+          </ProtectedRoute>
+        ),
+      },
+       {
+        path: "/addmylead",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <AddMyLead />
+          </ProtectedRoute>
+        ),
+      },
+        {
+        path: "/add-report",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <AddReport />
+          </ProtectedRoute>
+        ),
+      },
+      // ✅ Dashboard shortcuts
+      {
+        path: "/add-lead",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <AddLeadShortcut />
+          </ProtectedRoute>
+        ),
+      },
+    ],
+  },
+]);
+
+// ✅ ROOT RENDER
+createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <>
+      <RouterProvider router={router} />
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
+  </React.StrictMode>
+);
