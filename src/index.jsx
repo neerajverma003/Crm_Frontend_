@@ -47,6 +47,9 @@ import CreateState from "./newComponents/Operations/CreateState.jsx";
 import AssignedRoles from "./newComponents/UserManagement/AssignedRoles.jsx";
 import CompanyDashboard from "./newComponents/dashboard/CompanyDashboard.jsx";
 import AddReport from "./newComponents/AddReport.jsx";
+import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx";
+import AssignEmployeeRole from "./newComponents/employee/AssignEmployeeRole.jsx"
+// import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx"
 // ✅ Role groups
 const roles = {
   all: ["admin", "employee", "superadmin"],
@@ -233,6 +236,22 @@ const router = createBrowserRouter([
             <AddRole />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: "/employeecompany",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <AssignEmployeeCompany />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path:"/assignemployeerole",
+        element:(
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <AssignEmployeeRole />
+          </ProtectedRoute>
+        )
       },
       {
         path: "/leaves",
