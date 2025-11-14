@@ -27,84 +27,76 @@ const Designation = () => {
     }
   };
 
-  // ✅ Fetch departments
-  const fetchDepartments = async () => {
+  // ✅ Fetch departments by company
+  const fetchDepartments = async (companyId) => {
+    if (!companyId) {
+      setDepartments([]);
+      return;
+    }
+
     try {
-      const res = await fetch("http://localhost:4000/department/department");
+      const res = await fetch(
+        `http://localhost:4000/department/department?company=${companyId}`
+      );
       const data = await res.json();
-      console.log("Departments:", data);
-      setDepartments(data || []);
+      setDepartments(data.departments || []);
     } catch (error) {
       console.error("Error fetching departments:", error);
+      setDepartments([]);
     }
   };
 
-  // ✅ Fetch designations and map with company & department
+  // ✅ Fetch all designations
   const fetchDesignations = async () => {
-    try {
-      const res = await fetch("http://localhost:4000/designation");
-      const data = await res.json();
+  try {
+    const res = await fetch("http://localhost:4000/designation");
+    const data = await res.json();
 
-      const mappedData = data.map((desig) => {
-        // Handle both populated and non-populated data
-        const companyObj =
-          typeof desig.company === "object"
-            ? desig.company
-            : companies.find((c) => c._id === desig.company);
+    const list = Array.isArray(data.designations)
+      ? data.designations
+      : Array.isArray(data)
+      ? data
+      : [];
 
-        const departmentObj =
-          typeof desig.dep === "object"
-            ? desig.dep
-            : departments.find(
-                (d) => d._id === desig.dep || d.dep === desig.dep
-              );
+    setDesignations(list);
+  } catch (error) {
+    console.error("Error fetching designations:", error);
+    setDesignations([]); // prevent crash
+  }
+};
 
-        return {
-          _id: desig._id,
-          designation: desig.designation || "",
-          companyId: companyObj?._id || desig.company || "",
-          companyName: companyObj?.companyName || "N/A",
-          departmentId: departmentObj?._id || "",
-          departmentName:
-            departmentObj?.dep ||
-            (typeof desig.dep === "string" ? desig.dep : "N/A"),
-        };
-      });
-
-      setDesignations(mappedData);
-    } catch (error) {
-      console.error("Error fetching designations:", error);
-    }
-  };
-
-  // ✅ Initial Fetch
+  // ✅ Initial Load
   useEffect(() => {
     fetchCompanies();
-    fetchDepartments();
+    fetchDesignations();
   }, []);
 
-  // ✅ Once both companies & departments loaded, fetch designations
-  useEffect(() => {
-    if (companies.length > 0 && departments.length > 0) {
-      fetchDesignations();
-    }
-  }, [companies, departments]);
-
-  // ✅ Handle input change
+  // ✅ When company changes, load related departments
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "companyId") {
+      fetchDepartments(value); // 🔥 load company-specific departments
+      setFormData((prev) => ({ ...prev, departmentId: "" }));
+    }
   };
 
-  // ✅ Handle filter change
+  // ✅ Filter change
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "companyId") {
+      fetchDepartments(value); // 🔥 update filter departments
+      setFilters((prev) => ({ ...prev, departmentId: "" }));
+    }
   };
 
   // ✅ Add Designation
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.designation || !formData.companyId || !formData.departmentId) {
       alert("Please fill all fields");
       return;
@@ -121,61 +113,41 @@ const Designation = () => {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to add designation");
+      const saved = await res.json();
+      if (!res.ok) throw new Error(saved.message);
 
-      const savedData = await res.json();
-
-      const companyObj = companies.find((c) => c._id === formData.companyId);
-      const departmentObj = departments.find(
-        (d) => d._id === formData.departmentId
-      );
-
-      const newEntry = {
-        _id: savedData._id || Date.now(),
-        designation: savedData.designation,
-        companyName: companyObj?.companyName || "",
-        companyId: companyObj?._id || "",
-        departmentName: departmentObj?.dep || "",
-        departmentId: departmentObj?._id || "",
-      };
-
-      setDesignations((prev) => [newEntry, ...prev]);
+      alert("Designation added");
+      fetchDesignations();
       setFormData({ designation: "", companyId: "", departmentId: "" });
+      setDepartments([]);
     } catch (error) {
-      console.error("Error adding designation:", error);
+      console.error("Add error:", error);
       alert("Failed to add designation");
     }
   };
 
-  // ✅ Delete Designation
+  // ✅ Delete
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this designation?"))
-      return;
+    if (!window.confirm("Delete?")) return;
 
     try {
       const res = await fetch(`http://localhost:4000/designation/${id}`, {
         method: "DELETE",
       });
-      const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.message || "Failed to delete designation");
-        return;
+      if (res.ok) {
+        setDesignations((prev) => prev.filter((d) => d._id !== id));
       }
-
-      setDesignations((prev) => prev.filter((d) => d._id !== id));
-      alert("Designation deleted successfully");
     } catch (error) {
-      console.error("Error deleting designation:", error);
-      alert("Failed to delete designation");
+      console.error("Delete error:", error);
     }
   };
 
   // ✅ Apply filters
   const filteredDesignations = designations.filter((d) => {
     return (
-      (!filters.companyId || d.companyId === filters.companyId) &&
-      (!filters.departmentId || d.departmentId === filters.departmentId)
+      (!filters.companyId || d.company === filters.companyId) &&
+      (!filters.departmentId || d.dep === filters.departmentId)
     );
   });
 
@@ -183,22 +155,18 @@ const Designation = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <h2 className="text-2xl font-semibold mb-6">Designation Management</h2>
 
-      {/* Add Designation Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-md mb-8"
-      >
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mb-8">
         <div className="grid grid-cols-3 gap-4">
+          
           {/* Company */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Company
-            </label>
+            <label>Company</label>
             <select
               name="companyId"
               value={formData.companyId}
               onChange={handleChange}
-              className="w-full border rounded-lg p-2 mt-1 bg-white focus:ring-2 focus:ring-blue-500"
+              className="w-full border p-2 rounded"
             >
               <option value="">Select Company</option>
               {companies.map((c) => (
@@ -211,14 +179,12 @@ const Designation = () => {
 
           {/* Department */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Department
-            </label>
+            <label>Department</label>
             <select
               name="departmentId"
               value={formData.departmentId}
               onChange={handleChange}
-              className="w-full border rounded-lg p-2 mt-1 bg-white focus:ring-2 focus:ring-blue-500"
+              className="w-full border p-2 rounded"
             >
               <option value="">Select Department</option>
               {departments.map((d) => (
@@ -231,43 +197,33 @@ const Designation = () => {
 
           {/* Designation */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Designation
-            </label>
+            <label>Designation</label>
             <input
               type="text"
               name="designation"
               value={formData.designation}
               onChange={handleChange}
-              placeholder="Enter designation"
-              className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-500"
+              className="w-full border p-2 rounded"
             />
           </div>
         </div>
 
-        <div className="mt-6">
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800"
-          >
-            Add Designation
-          </button>
-        </div>
+        <button className="mt-4 bg-black text-white px-4 py-2 rounded">
+          Add Designation
+        </button>
       </form>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-4 flex gap-4 items-center">
+      <div className="bg-white p-4 rounded shadow mb-4 flex gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Filter by Company
-          </label>
+          <label>Filter by Company</label>
           <select
             name="companyId"
             value={filters.companyId}
             onChange={handleFilterChange}
-            className="border rounded-lg p-2 mt-1"
+            className="border p-2 rounded"
           >
-            <option value="">All Companies</option>
+            <option value="">All</option>
             {companies.map((c) => (
               <option key={c._id} value={c._id}>
                 {c.companyName}
@@ -277,16 +233,14 @@ const Designation = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Filter by Department
-          </label>
+          <label>Filter by Department</label>
           <select
             name="departmentId"
             value={filters.departmentId}
             onChange={handleFilterChange}
-            className="border rounded-lg p-2 mt-1"
+            className="border p-2 rounded"
           >
-            <option value="">All Departments</option>
+            <option value="">All</option>
             {departments.map((d) => (
               <option key={d._id} value={d._id}>
                 {d.dep}
@@ -296,58 +250,40 @@ const Designation = () => {
         </div>
       </div>
 
-      {/* Designations Table */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
-        <table className="min-w-full border-collapse">
-          <thead className="bg-gray-100 border-b">
-            <tr>
-              <th className="p-3 text-left text-sm font-semibold text-gray-600">
-                Designation
-              </th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-600">
-                Company
-              </th>
-              <th className="p-3 text-left text-sm font-semibold text-gray-600">
-                Department
-              </th>
-              <th className="p-3 text-center text-sm font-semibold text-gray-600">
-                Actions
-              </th>
+      {/* Table */}
+      <div className="bg-white shadow rounded p-4">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b bg-gray-100">
+              <th className="p-2">Designation</th>
+              <th className="p-2">Company</th>
+              <th className="p-2">Department</th>
+              <th className="p-2">Action</th>
             </tr>
           </thead>
           <tbody>
-            {filteredDesignations.length === 0 ? (
-              <tr>
-                <td
-                  colSpan="4"
-                  className="p-3 text-center text-gray-500 italic"
-                >
-                  No designations found
+            {filteredDesignations.map((d) => (
+              <tr key={d._id} className="border-b">
+                <td className="p-2">{d.designation}</td>
+                <td className="p-2">{companies.find(c => c._id === d.company)?.companyName}</td>
+                <td className="p-2">{departments.find(dep => dep._id === d.dep)?.dep}</td>
+                <td className="p-2">
+                  <button
+                    onClick={() => handleDelete(d._id)}
+                    className="bg-red-300 px-2 py-1 rounded"
+                  >
+                    <MdDelete />
+                  </button>
                 </td>
               </tr>
-            ) : (
-              filteredDesignations.map((d) => (
-                <tr key={d._id} className="border-b hover:bg-gray-50">
-                  <td className="p-3 text-sm text-gray-800">
-                    {d.designation}
-                  </td>
-                  <td className="p-3 text-sm text-gray-800">
-                    {d.companyName}
-                  </td>
-                  <td className="p-3 text-sm text-gray-800">
-                    {d.departmentName}
-                  </td>
-                  <td className="p-3 text-center">
-                    <button
-                      onClick={() => handleDelete(d._id)}
-                      className="px-2 py-2 rounded-full bg-red-200 hover:bg-red-300"
-                      title="Delete"
-                    >
-                      <MdDelete className="text-red-500 text-md" />
-                    </button>
-                  </td>
-                </tr>
-              ))
+            ))}
+
+            {filteredDesignations.length === 0 && (
+              <tr>
+                <td colSpan="4" className="p-4 text-center text-gray-500">
+                  No Records Found
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

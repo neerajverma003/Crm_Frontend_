@@ -49,6 +49,7 @@ import CompanyDashboard from "./newComponents/dashboard/CompanyDashboard.jsx";
 import AddReport from "./newComponents/AddReport.jsx";
 import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx";
 import AssignEmployeeRole from "./newComponents/employee/AssignEmployeeRole.jsx"
+import CreateTransport from "./newComponents/Operations/CreateTransport.jsx";
 // import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx"
 // ✅ Role groups
 const roles = {
@@ -291,6 +292,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={roles.adminOnly}>
             <CreateHotel />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/createtransport",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <CreateTransport />
           </ProtectedRoute>
         ),
       },

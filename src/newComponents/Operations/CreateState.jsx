@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const CreateState = () => {
   const [stateType, setStateType] = useState("Domestic"); // Default to Domestic
@@ -6,18 +6,24 @@ const CreateState = () => {
     countryName: "India",
     stateName: "",
   });
-
   const [filterType, setFilterType] = useState("All");
+  const [states, setStates] = useState([]); // ✅ store fetched states
 
-  // 🧩 Dummy Data
-  const dummyStates = [
-    { id: 1, type: "Domestic", country: "India", state: "Maharashtra" },
-    { id: 2, type: "Domestic", country: "India", state: "Delhi" },
-    { id: 3, type: "Domestic", country: "India", state: "Rajasthan" },
-    { id: 4, type: "International", country: "USA", state: "California" },
-    { id: 5, type: "International", country: "France", state: "Île-de-France" },
-    { id: 6, type: "International", country: "Japan", state: "Tokyo" },
-  ];
+  // ✅ Fetch states from backend
+  const fetchStates = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/state/");
+      if (!res.ok) throw new Error("Failed to fetch states");
+      const data = await res.json();
+      setStates(data); // update state
+    } catch (error) {
+      console.error("Error fetching states:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStates();
+  }, []);
 
   // ✅ Handle Checkbox Change
   const handleCheckboxChange = (type) => {
@@ -34,22 +40,52 @@ const CreateState = () => {
   };
 
   // ✅ Handle Submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log({
-      stateType,
-      ...formData,
-    });
+    if (!formData.countryName || !formData.stateName) {
+      alert("Please fill all fields");
+      return;
+    }
 
-    alert("State saved successfully ✅");
+    const payload = {
+      type: stateType,
+      country: formData.countryName,
+      state: formData.stateName,
+    };
+
+    try {
+      const res = await fetch("http://localhost:4000/state/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to save state");
+
+      const savedState = await res.json();
+
+      alert("State saved successfully ✅");
+
+      // Reset form
+      setFormData({
+        countryName: stateType === "Domestic" ? "India" : "",
+        stateName: "",
+      });
+
+      // Update table immediately
+      setStates((prev) => [...prev, savedState]);
+    } catch (error) {
+      console.error("Error saving state:", error);
+      alert("Failed to save state");
+    }
   };
 
-  // ✅ Filter Data
+  // ✅ Filter data
   const filteredData =
     filterType === "All"
-      ? dummyStates
-      : dummyStates.filter((d) => d.type === filterType);
+      ? states
+      : states.filter((d) => d.type === filterType);
 
   return (
     <div className="max-w-5xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
@@ -209,19 +245,13 @@ const CreateState = () => {
             <tbody>
               {filteredData.length > 0 ? (
                 filteredData.map((d, index) => (
-                  <tr key={d.id} className="hover:bg-gray-50">
+                  <tr key={d._id || index} className="hover:bg-gray-50">
                     <td className="border border-gray-200 px-4 py-2">
                       {index + 1}
                     </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {d.type}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {d.country}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {d.state}
-                    </td>
+                    <td className="border border-gray-200 px-4 py-2">{d.type}</td>
+                    <td className="border border-gray-200 px-4 py-2">{d.country}</td>
+                    <td className="border border-gray-200 px-4 py-2">{d.state}</td>
                   </tr>
                 ))
               ) : (

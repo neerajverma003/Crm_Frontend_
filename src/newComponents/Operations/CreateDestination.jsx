@@ -1,86 +1,135 @@
 import React, { useEffect, useState } from "react";
 
 const CreateDestination = () => {
-  const [destinationType, setDestinationType] = useState("Domestic"); // Default to Domestic
+  const [destinationType, setDestinationType] = useState("Domestic");
   const [formData, setFormData] = useState({
     countryName: "India",
     state: "",
     destinationName: "",
   });
 
-  const [statesList, setStatesList] = useState([]);
+  const [statesList, setStatesList] = useState([]);       
+  const [destinations, setDestinations] = useState([]);  
   const [filterType, setFilterType] = useState("All");
 
-  // 🧩 Dummy State Lists (In real app, replace with API call)
-  const domesticStates = [
-    "Maharashtra",
-    "Delhi",
-    "Rajasthan",
-    "Gujarat",
-    "Karnataka",
-  ];
-  const internationalStates = [
-    "California",
-    "Île-de-France",
-    "Tokyo",
-    "Queensland",
-    "Ontario",
-  ];
-
-  // 🧩 Dummy Destinations Table
-  const dummyDestinations = [
-    { id: 1, type: "Domestic", country: "India", state: "Maharashtra", destination: "Goa" },
-    { id: 2, type: "Domestic", country: "India", state: "Delhi", destination: "Delhi City Tour" },
-    { id: 3, type: "Domestic", country: "India", state: "Rajasthan", destination: "Jaipur Heritage" },
-    { id: 4, type: "International", country: "USA", state: "California", destination: "Golden Gate" },
-    { id: 5, type: "International", country: "France", state: "Île-de-France", destination: "Paris Tour" },
-    { id: 6, type: "International", country: "Japan", state: "Tokyo", destination: "Tokyo Explorer" },
-  ];
-
-  // ✅ Load States automatically based on Type
-  useEffect(() => {
-    if (destinationType === "Domestic") {
-      setStatesList(domesticStates);
-      setFormData((prev) => ({
-        ...prev,
-        countryName: "India",
-        state: "",
-      }));
-    } else {
-      setStatesList(internationalStates);
-      setFormData((prev) => ({
-        ...prev,
-        countryName: "",
-        state: "",
-      }));
+  // -------------------------------------------------------------------
+  // ✅ Fetch States from API
+  // -------------------------------------------------------------------
+  const fetchStates = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/state/");
+      const data = await res.json();
+      setStatesList(data);
+    } catch (error) {
+      console.error("Error fetching states:", error);
     }
-  }, [destinationType]);
+  };
 
-  // ✅ Handle Input Change
+  // -------------------------------------------------------------------
+  // ✅ Fetch Destinations
+  // -------------------------------------------------------------------
+  const fetchDestinations = async () => {
+    try {
+      const res = await fetch("http://localhost:4000/destination/");
+      const data = await res.json();
+      setDestinations(data);
+    } catch (error) {
+      console.error("Error fetching destinations:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStates();
+    fetchDestinations();
+  }, []);
+
+  // -------------------------------------------------------------------
+  // ✅ Filter Domestic & International States
+  // -------------------------------------------------------------------
+  const domesticStates = statesList.filter((s) => s.type === "Domestic");
+  const internationalStates = statesList.filter((s) => s.type === "International");
+
+  // Extract unique countries for International dropdown
+  const uniqueCountries = [
+    ...new Set(internationalStates.map((s) => s.country)),
+  ];
+
+  // States filtered based on selected country
+  const internationalStatesByCountry = internationalStates.filter(
+    (s) => s.country === formData.countryName
+  );
+
+  // -------------------------------------------------------------------
+  // Input change handler
+  // -------------------------------------------------------------------
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    // if country changes → reset state
+    if (e.target.name === "countryName") {
+      setFormData((prev) => ({ ...prev, state: "" }));
+    }
   };
 
-  // ✅ Handle Checkbox Change
+  // -------------------------------------------------------------------
+  // On Domestic / International toggle
+  // -------------------------------------------------------------------
   const handleCheckboxChange = (type) => {
     setDestinationType(type);
-  };
-
-  // ✅ Handle Submit
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log({
-      destinationType,
-      ...formData,
+    setFormData({
+      countryName: type === "Domestic" ? "India" : "",
+      state: "",
+      destinationName: "",
     });
-    alert("Destination saved successfully ✅");
   };
 
-  // ✅ Filtered Data
-  const filteredData =
+  // -------------------------------------------------------------------
+  // Save Destination API
+  // -------------------------------------------------------------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.countryName || !formData.state || !formData.destinationName) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    const payload = {
+      type: destinationType,
+      country: formData.countryName,
+      state: formData.state, 
+      destinationName: formData.destinationName,
+    };
+
+    try {
+      const res = await fetch("http://localhost:4000/destination/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to save destination");
+
+      alert("Destination saved successfully ✅");
+
+      fetchDestinations();
+
+      setFormData({
+        countryName: destinationType === "Domestic" ? "India" : "",
+        state: "",
+        destinationName: "",
+      });
+    } catch (error) {
+      console.error(error);
+      alert("Failed to save destination");
+    }
+  };
+
+  // Filter table
+  const filteredTable =
     filterType === "All"
-      ? dummyDestinations
-      : dummyDestinations.filter((d) => d.type === filterType);
+      ? destinations
+      : destinations.filter((d) => d.type === filterType);
 
   return (
     <div className="max-w-5xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
@@ -88,7 +137,7 @@ const CreateDestination = () => {
         Create Destination
       </h2>
 
-      {/* ✅ Destination Type Selection */}
+      {/* Type */}
       <div className="flex gap-6 mb-6 justify-center">
         <label className="flex items-center gap-2">
           <input
@@ -109,45 +158,67 @@ const CreateDestination = () => {
         </label>
       </div>
 
-      {/* ✅ Form */}
+      {/* FORM */}
       <form onSubmit={handleSubmit} className="space-y-4 max-w-lg mx-auto">
-        {/* Country */}
+
+        {/* ========== COUNTRY ========== */}
         <div>
           <label className="block text-sm font-medium mb-1">
             Country Name
           </label>
-          <input
-            type="text"
-            name="countryName"
-            value={formData.countryName}
-            onChange={handleInputChange}
-            placeholder="Enter country name"
-            readOnly={destinationType === "Domestic"}
-            className={`w-full border border-gray-300 rounded-md p-2 ${
-              destinationType === "Domestic" ? "bg-gray-100" : ""
-            } focus:outline-none focus:ring-2 focus:ring-black`}
-          />
+
+          {destinationType === "Domestic" ? (
+            <input
+              type="text"
+              value="India"
+              readOnly
+              className="w-full border p-2 bg-gray-100"
+            />
+          ) : (
+            <select
+              name="countryName"
+              value={formData.countryName}
+              onChange={handleInputChange}
+              className="w-full border p-2"
+            >
+              <option value="">Select Country</option>
+
+              {uniqueCountries.map((country, index) => (
+                <option key={index} value={country}>
+                  {country}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
-        {/* State Dropdown */}
+        {/* ========== STATE ========== */}
         <div>
           <label className="block text-sm font-medium mb-1">State</label>
+
           <select
             name="state"
             value={formData.state}
             onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border p-2"
           >
-            <option value="">Select state</option>
-            {statesList.map((state, index) => (
-              <option key={index} value={state}>
-                {state}
-              </option>
-            ))}
+            <option value="">Select State</option>
+
+            {destinationType === "Domestic"
+              ? domesticStates.map((s) => (
+                  <option value={s._id} key={s._id}>
+                    {s.state}
+                  </option>
+                ))
+              : internationalStatesByCountry.map((s) => (
+                  <option value={s._id} key={s._id}>
+                    {s.state}
+                  </option>
+                ))}
           </select>
         </div>
 
-        {/* Destination Name */}
+        {/* DESTINATION NAME */}
         <div>
           <label className="block text-sm font-medium mb-1">
             Destination Name
@@ -157,90 +228,57 @@ const CreateDestination = () => {
             name="destinationName"
             value={formData.destinationName}
             onChange={handleInputChange}
-            placeholder="Enter destination name"
-            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border p-2"
+            placeholder="Enter destination"
           />
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition-colors"
-        >
+        <button className="w-full bg-black text-white py-2 rounded-md">
           Save Destination
         </button>
       </form>
 
-      {/* ✅ Table Section */}
+      {/* TABLE */}
       <div className="mt-10">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">Destination List</h3>
+        <h3 className="text-lg font-semibold mb-4">Destination List</h3>
 
-          {/* Filter Buttons */}
-          <div className="flex gap-2">
-            {["All", "Domestic", "International"].map((type) => (
-              <button
-                key={type}
-                onClick={() => setFilterType(type)}
-                className={`px-4 py-1 rounded-md border ${
-                  filterType === type
-                    ? "bg-black text-white"
-                    : "bg-white text-black border-gray-300"
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
+        <div className="flex gap-3 mb-4">
+          {["All", "Domestic", "International"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilterType(type)}
+              className={`px-4 py-1 border rounded ${
+                filterType === type ? "bg-black text-white" : ""
+              }`}
+            >
+              {type}
+            </button>
+          ))}
         </div>
 
-        {/* ✅ Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border border-gray-200 text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border border-gray-200 px-4 py-2 text-left">#</th>
-                <th className="border border-gray-200 px-4 py-2 text-left">
-                  Type
-                </th>
-                <th className="border border-gray-200 px-4 py-2 text-left">
-                  Country
-                </th>
-                <th className="border border-gray-200 px-4 py-2 text-left">
-                  State
-                </th>
-                <th className="border border-gray-200 px-4 py-2 text-left">
-                  Destination
-                </th>
+        <table className="w-full border text-sm">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="border p-2">#</th>
+              <th className="border p-2">Type</th>
+              <th className="border p-2">Country</th>
+              <th className="border p-2">State</th>
+              <th className="border p-2">Destination</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredTable.map((d, index) => (
+              <tr key={d._id} className="hover:bg-gray-50">
+                <td className="border p-2">{index + 1}</td>
+                <td className="border p-2">{d.type}</td>
+                <td className="border p-2">{d.country}</td>
+                <td className="border p-2">{d.state?.state}</td>
+                <td className="border p-2">{d.destinationName}</td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredData.length > 0 ? (
-                filteredData.map((d, index) => (
-                  <tr key={d.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-200 px-4 py-2">
-                      {index + 1}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">{d.type}</td>
-                    <td className="border border-gray-200 px-4 py-2">{d.country}</td>
-                    <td className="border border-gray-200 px-4 py-2">{d.state}</td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {d.destination}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="text-center text-gray-500 py-4 border border-gray-200"
-                  >
-                    No destinations found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

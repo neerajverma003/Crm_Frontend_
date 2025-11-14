@@ -362,6 +362,7 @@ const Sidebar = () => {
         { id: "10-1", label: "Create State", url: "/createstate" },
         { id: "10-2", label: "Create Destination", url: "/createdestination" },
         { id: "10-3", label: "Create Hotel", url: "/createhotel" },
+        { id: "10-4", label: "Create Transport", url: "/createtransport" },
       ],
     },
 
