@@ -275,7 +275,7 @@ const router = createBrowserRouter([
    {
         path: "/createstate",
         element: (
-          <ProtectedRoute allowedRoles={roles.adminOnly}>
+          <ProtectedRoute allowedRoles={roles.employeeOnly}>
             <CreateState />
           </ProtectedRoute>
         ),
@@ -283,7 +283,7 @@ const router = createBrowserRouter([
         {
         path: "/createdestination",
         element: (
-          <ProtectedRoute allowedRoles={roles.adminOnly}>
+          <ProtectedRoute allowedRoles={roles.employeeOnly}>
             <CreateDestination />
           </ProtectedRoute>
         ),
@@ -292,7 +292,7 @@ const router = createBrowserRouter([
        {
         path: "/createhotel",
         element: (
-          <ProtectedRoute allowedRoles={roles.adminOnly}>
+          <ProtectedRoute allowedRoles={roles.employeeOnly}>
             <CreateHotel />
           </ProtectedRoute>
         ),
@@ -300,7 +300,7 @@ const router = createBrowserRouter([
       {
         path: "/createtransport",
         element: (
-          <ProtectedRoute allowedRoles={roles.adminOnly}>
+          <ProtectedRoute allowedRoles={roles.employeeOnly}>
             <CreateTransport />
           </ProtectedRoute>
         ),
@@ -364,7 +364,7 @@ const router = createBrowserRouter([
       {
         path: "/b2b-addcompany",
         element: (
-          <ProtectedRoute allowedRoles={roles.adminOnly}>
+          <ProtectedRoute allowedRoles={roles.employeeOnly}>
             <B2bAddCompany />
           </ProtectedRoute>
         ),
@@ -372,7 +372,7 @@ const router = createBrowserRouter([
       {
         path: "/b2b-destination",
         element: (
-          <ProtectedRoute allowedRoles={roles.adminOnly}>
+          <ProtectedRoute allowedRoles={roles.employeeOnly}>
             <B2bDestination />
           </ProtectedRoute>
         ),

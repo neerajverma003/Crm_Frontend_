@@ -858,6 +858,390 @@
 
 
 
+// import React, { useState, useEffect } from "react";
+// import { Link, useLocation } from "react-router-dom";
+
+// function EmployeeSidebar() {
+//   const location = useLocation();
+//   const [roles, setRoles] = useState([]);
+//   const [selectedEmployee, setSelectedEmployee] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+//   const userId = localStorage.getItem("userId");
+//   const userRole = localStorage.getItem("role")?.trim()?.toLowerCase();
+
+//   useEffect(() => {
+//     const fetchEmployee = async () => {
+//       const storedEmployee = localStorage.getItem("selectedEmployee");
+//       if (!storedEmployee) return;
+
+//       const { id } = JSON.parse(storedEmployee);
+//       if (!id) return;
+
+//       try {
+//         const res = await fetch(`http://localhost:4000/employee/${id}`);
+//         const data = await res.json();
+//         if (data.success && data.employee) {
+//           setSelectedEmployee(data.employee);
+//         } else {
+//           setSelectedEmployee({ id });
+//         }
+//       } catch (err) {
+//         console.error(err);
+//         setSelectedEmployee({ id });
+//       }
+//     };
+
+//     fetchEmployee();
+//   }, []);
+
+//   const fetchSubRoleName = async (subRoleId) => {
+//     try {
+//       const res = await fetch(
+//         `http://localhost:4000/employee/getSubRoleName/${subRoleId}`
+//       );
+//       const data = await res.json();
+//       return data.success ? data.subRoleName : subRoleId;
+//     } catch (err) {
+//       console.error(err);
+//       return subRoleId;
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (!userId) return;
+
+//     const fetchRoles = async () => {
+//       setLoading(true);
+//       try {
+//         const res = await fetch(
+//           `http://localhost:4000/employee/getAssignedRoles/${userId}`
+//         );
+//         const data = await res.json();
+//         if (data.success && Array.isArray(data.assignedRoles)) {
+//           const allSubRoles = [];
+
+//           for (const roleItem of data.assignedRoles) {
+//             if (roleItem.subRoles && roleItem.subRoles.length > 0) {
+//               for (const subId of roleItem.subRoles) {
+//                 const name = await fetchSubRoleName(subId);
+//                 allSubRoles.push({ _id: subId, subRoleName: name });
+//               }
+//             }
+//           }
+
+//           setRoles(allSubRoles);
+//         } else {
+//           setRoles([]);
+//         }
+//       } catch (err) {
+//         console.error(err);
+//         setRoles([]);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchRoles();
+//   }, [userId]);
+
+//   useEffect(() => setIsMobileMenuOpen(false), [location.pathname]);
+
+//   const getSubRoleRoute = (name) => {
+//     if (!name) return "/";
+//     const normalized = name.toLowerCase();
+//     if (normalized === "my lead" || normalized === "mylead") return "/addmylead";
+//     if (normalized.includes("lead")) return "/lead-management";
+//     return `/${normalized.replace(/\s+/g, "-")}`;
+//   };
+
+//   if (userRole !== "employee") return null;
+
+//   return (
+//     <>
+//       {/* Mobile toggle */}
+//       <button
+//         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+//         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-black text-white rounded-lg"
+//       >
+//         {isMobileMenuOpen ? "Close" : "Menu"}
+//       </button>
+
+//       {/* Overlay */}
+//       {isMobileMenuOpen && (
+//         <div
+//           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+//           onClick={() => setIsMobileMenuOpen(false)}
+//         />
+//       )}
+
+//       {/* Sidebar */}
+//       <aside
+//         className={`fixed lg:relative w-64 h-screen bg-white border-r border-gray-200 shadow-lg overflow-y-auto transition-transform z-40 ${
+//           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+//         }`}
+//       >
+//         {/* Header */}
+//         <div className="p-6 border-b border-gray-200 bg-black text-white flex items-center gap-3">
+//           <div className="flex items-center justify-center rounded-lg bg-white text-black text-xl font-bold w-10 h-10">
+//             {selectedEmployee?.name?.[0]?.toUpperCase() ||
+//               selectedEmployee?.id?.[0] ||
+//               "E"}
+//           </div>
+//           <div>
+//             <h2 className="text-lg font-semibold">
+//               {selectedEmployee?.name || "Employee Dashboard"}
+//             </h2>
+//             <p className="text-gray-300 text-xs mt-1">Employee Panel</p>
+//           </div>
+//         </div>
+
+//         {/* Content */}
+//         <div className="p-4">
+//           <div className="space-y-2">
+//             <Link
+//               to="/dashboard"
+//               className={`block px-4 py-2 rounded-lg font-medium ${
+//                 location.pathname === "/dashboard"
+//                   ? "bg-black text-white"
+//                   : "hover:bg-gray-100 text-gray-800"
+//               }`}
+//             >
+//               Dashboard
+//             </Link>
+
+//             {loading ? (
+//               <p className="text-gray-400 text-sm mt-4 text-center">Loading...</p>
+//             ) : roles.length > 0 ? (
+//               roles.map((sub) => {
+//                 const route = getSubRoleRoute(sub.subRoleName);
+//                 const active = location.pathname === route;
+//                 return (
+//                   <Link
+//                     key={sub._id}
+//                     to={route}
+//                     className={`block px-4 py-2 rounded-lg font-medium ${
+//                       active ? "bg-black text-white" : "hover:bg-gray-100 text-gray-800"
+//                     }`}
+//                   >
+//                     {sub.subRoleName}
+//                   </Link>
+//                 );
+//               })
+//             ) : (
+//               <p className="text-gray-400 text-center mt-4">No roles assigned yet.</p>
+//             )}
+//           </div>
+//         </div>
+//       </aside>
+//     </>
+//   );
+// }
+
+// export default EmployeeSidebar;
+
+
+
+
+
+// import React, { useState, useEffect } from "react";
+// import { Link, useLocation } from "react-router-dom";
+
+// function EmployeeSidebar() {
+//   const location = useLocation();
+//   const [roles, setRoles] = useState([]);
+//   const [selectedEmployee, setSelectedEmployee] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+//   const userId = localStorage.getItem("userId");
+//   const userRole = localStorage.getItem("role")?.trim()?.toLowerCase();
+
+//   useEffect(() => {
+//     const fetchEmployee = async () => {
+//       const storedEmployee = localStorage.getItem("selectedEmployee");
+//       if (!storedEmployee) return;
+
+//       const { id } = JSON.parse(storedEmployee);
+//       if (!id) return;
+
+//       try {
+//         const res = await fetch(`http://localhost:4000/employee/${id}`);
+//         const data = await res.json();
+//         if (data.success && data.employee) {
+//           setSelectedEmployee(data.employee);
+//         } else {
+//           setSelectedEmployee({ id });
+//         }
+//       } catch (err) {
+//         console.error(err);
+//         setSelectedEmployee({ id });
+//       }
+//     };
+
+//     fetchEmployee();
+//   }, []);
+
+//   const fetchSubRoleName = async (subRoleId) => {
+//     try {
+//       const res = await fetch(
+//         `http://localhost:4000/employee/getSubRoleName/${subRoleId}`
+//       );
+//       const data = await res.json();
+//       return data.success ? data.subRoleName : subRoleId;
+//     } catch (err) {
+//       console.error(err);
+//       return subRoleId;
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (!userId) return;
+
+//     const fetchRoles = async () => {
+//       setLoading(true);
+//       try {
+//         const res = await fetch(
+//           `http://localhost:4000/employee/getAssignedRoles/${userId}`
+//         );
+//         const data = await res.json();
+//         if (data.success && Array.isArray(data.assignedRoles)) {
+//           const allSubRoles = [];
+
+//           for (const roleItem of data.assignedRoles) {
+//             if (roleItem.subRoles && roleItem.subRoles.length > 0) {
+//               for (const subId of roleItem.subRoles) {
+//                 const name = await fetchSubRoleName(subId);
+//                 allSubRoles.push({ _id: subId, subRoleName: name });
+//               }
+//             }
+//           }
+
+//           setRoles(allSubRoles);
+//         } else {
+//           setRoles([]);
+//         }
+//       } catch (err) {
+//         console.error(err);
+//         setRoles([]);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchRoles();
+//   }, [userId]);
+
+//   useEffect(() => setIsMobileMenuOpen(false), [location.pathname]);
+
+//   const getSubRoleRoute = (name) => {
+//     if (!name) return "/";
+
+//     const normalized = name.toLowerCase();
+
+//     // Explicit mapping for B2B routes
+//     if (normalized === "create destination" || normalized === "destination") {
+//       return "/b2b-destination";  // Correct route for Create Destination
+//     }
+
+//     if (normalized === "add company" || normalized === "b2b add company") {
+//       return "/b2b-addcompany";  // Correct route for Add Company
+//     }
+
+//     if (normalized === "my lead" || normalized === "mylead") return "/addmylead";
+//     if (normalized.includes("lead")) return "/lead-management";
+    
+//     return `/${normalized.replace(/\s+/g, "-")}`;
+//   };
+
+//   if (userRole !== "employee") return null;
+
+//   return (
+//     <>
+//       {/* Mobile toggle */}
+//       <button
+//         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+//         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-black text-white rounded-lg"
+//       >
+//         {isMobileMenuOpen ? "Close" : "Menu"}
+//       </button>
+
+//       {/* Overlay */}
+//       {isMobileMenuOpen && (
+//         <div
+//           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+//           onClick={() => setIsMobileMenuOpen(false)}
+//         />
+//       )}
+
+//       {/* Sidebar */}
+//       <aside
+//         className={`fixed lg:relative w-64 h-screen bg-white border-r border-gray-200 shadow-lg overflow-y-auto transition-transform z-40 ${
+//           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+//         }`}
+//       >
+//         {/* Header */}
+//         <div className="p-6 border-b border-gray-200 bg-black text-white flex items-center gap-3">
+//           <div className="flex items-center justify-center rounded-lg bg-white text-black text-xl font-bold w-10 h-10">
+//             {selectedEmployee?.name?.[0]?.toUpperCase() ||
+//               selectedEmployee?.id?.[0] ||
+//               "E"}
+//           </div>
+//           <div>
+//             <h2 className="text-lg font-semibold">
+//               {selectedEmployee?.name || "Employee Dashboard"}
+//             </h2>
+//             <p className="text-gray-300 text-xs mt-1">Employee Panel</p>
+//           </div>
+//         </div>
+
+//         {/* Content */}
+//         <div className="p-4">
+//           <div className="space-y-2">
+//             <Link
+//               to="/dashboard"
+//               className={`block px-4 py-2 rounded-lg font-medium ${
+//                 location.pathname === "/dashboard"
+//                   ? "bg-black text-white"
+//                   : "hover:bg-gray-100 text-gray-800"
+//               }`}
+//             >
+//               Dashboard
+//             </Link>
+
+//             {loading ? (
+//               <p className="text-gray-400 text-sm mt-4 text-center">Loading...</p>
+//             ) : roles.length > 0 ? (
+//               roles.map((sub) => {
+//                 const route = getSubRoleRoute(sub.subRoleName);
+//                 const active = location.pathname === route;
+//                 return (
+//                   <Link
+//                     key={sub._id}
+//                     to={route}
+//                     className={`block px-4 py-2 rounded-lg font-medium ${
+//                       active ? "bg-black text-white" : "hover:bg-gray-100 text-gray-800"
+//                     }`}
+//                   >
+//                     {sub.subRoleName}
+//                   </Link>
+//                 );
+//               })
+//             ) : (
+//               <p className="text-gray-400 text-center mt-4">No roles assigned yet.</p>
+//             )}
+//           </div>
+//         </div>
+//       </aside>
+//     </>
+//   );
+// }
+
+// export default EmployeeSidebar;
+
+
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -950,9 +1334,24 @@ function EmployeeSidebar() {
 
   const getSubRoleRoute = (name) => {
     if (!name) return "/";
+
     const normalized = name.toLowerCase();
+
+    // B2B routes
+    if (normalized === "create destination") return "/b2b-destination";
+    if (normalized === "add company" || normalized === "b2b add company") return "/b2b-addcompany";
+
+    // New fixed routes
+    if (normalized === "add state") return "/createstate";
+    if (normalized === "add destination") return "/createdestination";
+    if (normalized === "add hotel") return "/createhotel";
+    if (normalized === "add transport") return "/createtransport";
+
+    // Lead routes
     if (normalized === "my lead" || normalized === "mylead") return "/addmylead";
     if (normalized.includes("lead")) return "/lead-management";
+
+    // Fallback: generate slug from name
     return `/${normalized.replace(/\s+/g, "-")}`;
   };
 
@@ -1040,3 +1439,4 @@ function EmployeeSidebar() {
 }
 
 export default EmployeeSidebar;
+
