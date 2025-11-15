@@ -50,6 +50,8 @@ import AddReport from "./newComponents/AddReport.jsx";
 import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx";
 import AssignEmployeeRole from "./newComponents/employee/AssignEmployeeRole.jsx"
 import CreateTransport from "./newComponents/Operations/CreateTransport.jsx";
+import B2bAddCompany from "./newComponents/B2b/B2bAddCompany.jsx";
+import B2bDestination from "./newComponents/B2b/B2bDestination.jsx";
 // import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx"
 // ✅ Role groups
 const roles = {
@@ -349,6 +351,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+
         {
         path: "/add-report",
         element: (
@@ -357,6 +360,24 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+
+      {
+        path: "/b2b-addcompany",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <B2bAddCompany />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/b2b-destination",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <B2bDestination />
+          </ProtectedRoute>
+        ),
+      },
+
       // ✅ Dashboard shortcuts
       {
         path: "/add-lead",

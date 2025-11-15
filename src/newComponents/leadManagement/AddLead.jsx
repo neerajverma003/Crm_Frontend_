@@ -1,8 +1,296 @@
+// // import React, { useState, useEffect } from "react";
+// // import { Plus, AlertCircle } from "lucide-react";
+// // import Modal from "../UserManagement/Modal.jsx";
+
+// // // 🧩 Dropdown Options
+// // const leadSources = [
+// //   "Cold Call", "Website", "Referral", "LinkedIn", "Trade Show",
+// //   "Email Campaign", "Social Media", "Event", "Organic Search", "Paid Ads",
+// // ];
+// // const leadTypes = ["International", "Domestic"];
+// // const tripTypes = ["Solo", "Group", "Family", "Couple", "Honeymoon"];
+// // const leadStatuses = ["Hot", "Warm", "Cold", "Converted", "Lost"];
+
+// // // 🧩 Input Component
+// // const InputField = ({ name, type = "text", placeholder, required, value, error, onChange }) => (
+// //   <div className="h-[4.5rem]">
+// //     <label className="block text-xs font-medium text-gray-700 mb-0.5">
+// //       {name.charAt(0).toUpperCase() + name.slice(1)}{" "}
+// //       {required && <span className="text-red-500">*</span>}
+// //     </label>
+// //     <input
+// //       type={type}
+// //       name={name}
+// //       value={value || ""}
+// //       onChange={onChange}
+// //       placeholder={placeholder}
+// //       className={`w-full px-3 py-1.5 border rounded-lg text-sm outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+// //         error ? "border-red-300 bg-red-50" : "border-gray-300 hover:border-gray-400"
+// //       }`}
+// //       autoComplete="off"
+// //     />
+// //     {error && (
+// //       <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+// //         <AlertCircle className="w-3 h-3" /> {error}
+// //       </p>
+// //     )}
+// //   </div>
+// // );
+
+// // // 🧩 Select Component
+// // const SelectField = ({ name, options, required, value, error, onChange }) => (
+// //   <div className="h-[4.5rem]">
+// //     <label className="block text-xs font-medium text-gray-700 mb-0.5">
+// //       {name.charAt(0).toUpperCase() + name.slice(1)}{" "}
+// //       {required && <span className="text-red-500">*</span>}
+// //     </label>
+// //     <select
+// //       name={name}
+// //       value={value || ""}
+// //       onChange={onChange}
+// //       className={`w-full px-3 py-1.5 border rounded-lg text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+// //         error ? "border-red-300 bg-red-50" : "border-gray-300 hover:border-gray-400"
+// //       }`}
+// //     >
+// //       <option value="">Select {name}</option>
+// //       {options.map((opt) => (
+// //         <option key={opt}>{opt}</option>
+// //       ))}
+// //     </select>
+// //     {error && (
+// //       <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+// //         <AlertCircle className="w-3 h-3" /> {error}
+// //       </p>
+// //     )}
+// //   </div>
+// // );
+
+// // const AddLead = ({ onLeadAdded }) => {
+// //   const [isOpen, setIsOpen] = useState(false);
+// //   const [tab, setTab] = useState("manual");
+// //   const [isSubmitting, setIsSubmitting] = useState(false);
+// //   const [apiError, setApiError] = useState("");
+// //   const [uploadSummary, setUploadSummary] = useState(null);
+// //   const [progress, setProgress] = useState(0);
+// //   const [recordProgress, setRecordProgress] = useState({ current: 0, total: 0 });
+
+// //   const [formData, setFormData] = useState({
+// //     name: "", email: "", phone: "", whatsAppNo: "",
+// //     departureCity: "", destination: "", expectedTravelDate: "",
+// //     noOfDays: "", placesToCover: "", noOfPerson: "",
+// //     noOfChild: "", childAge: "", leadSource: "",
+// //     leadType: "", tripType: "", company: "",
+// //     leadStatus: "Hot", value: "", notes: "",
+// //   });
+
+// //   const [errors, setErrors] = useState({});
+// //   const [file, setFile] = useState(null);
+
+// //   // 🧩 Manual Validation
+// //   const validate = (data) => {
+// //     const newErrors = {};
+// //     if (!data.name) newErrors.name = "Name is required";
+// //     if (!data.phone) newErrors.phone = "Phone is required";
+// //     if (!data.departureCity) newErrors.departureCity = "Departure City is required";
+// //     return newErrors;
+// //   };
+
+// //   const handleChange = (e) => {
+// //     const { name, value } = e.target;
+// //     setFormData((prev) => ({ ...prev, [name]: value }));
+// //   };
+
+// //   // 🧩 Manual Submit
+// //   const handleManualSubmit = async (e) => {
+// //     e.preventDefault();
+// //     const newErrors = validate(formData);
+// //     setErrors(newErrors);
+// //     if (Object.keys(newErrors).length > 0) return;
+
+// //     setIsSubmitting(true);
+// //     setApiError("");
+// //     try {
+// //       const payload = { ...formData, phone: formData.phone.split(",").map((p) => p.trim()) };
+// //       const res = await fetch("http://localhost:4000/leads/lead", {
+// //         method: "POST",
+// //         headers: { "Content-Type": "application/json" },
+// //         body: JSON.stringify(payload),
+// //       });
+// //       if (!res.ok) throw new Error("Failed to add lead");
+// //       onLeadAdded?.();
+// //       setIsOpen(false);
+// //     } catch (err) {
+// //       setApiError(err.message);
+// //     } finally {
+// //       setIsSubmitting(false);
+// //     }
+// //   };
+
+// //   // 🧩 Upload Excel + Progress System
+// //   const handleFileUpload = async (e) => {
+// //     e.preventDefault();
+// //     if (!file) return alert("Please select a file first!");
+
+// //     setIsSubmitting(true);
+// //     setApiError("");
+// //     setProgress(0);
+// //     setRecordProgress({ current: 0, total: 0 });
+// //     setUploadSummary(null);
+
+// //     const formDataObj = new FormData();
+// //     formDataObj.append("file", file);
+
+// //     // ✅ Upload with progress tracking
+// //     const xhr = new XMLHttpRequest();
+// //     xhr.open("POST", "http://localhost:4000/leads/upload");
+
+// //     xhr.upload.onprogress = (event) => {
+// //       if (event.lengthComputable) {
+// //         const percent = Math.round((event.loaded * 100) / event.total);
+// //         setProgress(percent);
+// //       }
+// //     };
+
+// //     xhr.onload = async () => {
+// //       if (xhr.status === 200) {
+// //         const res = JSON.parse(xhr.responseText);
+// //         setUploadSummary(res);
+// //         onLeadAdded?.();
+// //       } else {
+// //         setApiError("Upload failed");
+// //       }
+// //       setIsSubmitting(false);
+// //     };
+
+// //     xhr.onerror = () => {
+// //       setApiError("Network error during upload");
+// //       setIsSubmitting(false);
+// //     };
+
+// //     xhr.send(formDataObj);
+// //   };
+
+// //   return (
+// //     <>
+// //       <button
+// //         onClick={() => setIsOpen(true)}
+// //         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition"
+// //       >
+// //         <Plus className="w-4 h-4" /> Add Lead
+// //       </button>
+
+// //       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} size="large">
+// //         <div className="flex flex-col h-full max-h-[95vh]">
+// //           <div className="p-4 border-b flex justify-between items-center">
+// //             <h2 className="text-lg font-bold text-gray-900">Add New Lead</h2>
+// //             <div className="flex gap-2">
+// //               <button
+// //                 className={`px-3 py-1 rounded ${tab === "manual" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}`}
+// //                 onClick={() => setTab("manual")}
+// //               >
+// //                 Manual
+// //               </button>
+// //               <button
+// //                 className={`px-3 py-1 rounded ${tab === "upload" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}`}
+// //                 onClick={() => setTab("upload")}
+// //               >
+// //                 Upload Excel
+// //               </button>
+// //             </div>
+// //           </div>
+
+// //           <div className="flex-1 overflow-y-auto p-4">
+// //             {tab === "manual" ? (
+// //               // Manual Form
+// //               <form onSubmit={handleManualSubmit} className="space-y-3">
+// //                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+// //                   <InputField name="name" value={formData.name} onChange={handleChange} required error={errors.name} />
+// //                   <InputField name="phone" value={formData.phone} onChange={handleChange} required error={errors.phone} />
+// //                   <InputField name="departureCity" value={formData.departureCity} onChange={handleChange} required error={errors.departureCity} />
+// //                   <SelectField name="leadSource" options={leadSources} value={formData.leadSource} onChange={handleChange} />
+// //                   <SelectField name="leadType" options={leadTypes} value={formData.leadType} onChange={handleChange} />
+// //                 </div>
+// //                 <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white px-4 py-2 rounded">
+// //                   {isSubmitting ? "Saving..." : "Save Lead"}
+// //                 </button>
+// //               </form>
+// //             ) : (
+// //               // Upload Form
+// //               <form onSubmit={handleFileUpload} className="space-y-3">
+// //                 <div>
+// //                   <label className="block text-sm font-medium text-gray-700 mb-1">Select Excel File</label>
+// //                   <input
+// //                     type="file"
+// //                     accept=".xlsx,.xls"
+// //                     onChange={(e) => setFile(e.target.files[0])}
+// //                     className="border p-2 rounded w-full"
+// //                   />
+// //                 </div>
+
+// //                 {/* ✅ Progress Bar */}
+// //                 {isSubmitting && (
+// //                   <div className="mt-2">
+// //                     <div className="w-full bg-gray-200 rounded-full h-3">
+// //                       <div
+// //                         className="bg-blue-600 h-3 rounded-full transition-all duration-200"
+// //                         style={{ width: `${progress}%` }}
+// //                       ></div>
+// //                     </div>
+// //                     <p className="text-sm text-gray-700 mt-1 text-center">
+// //                       Uploading... {progress}% 
+// //                     </p>
+// //                   </div>
+// //                 )}
+
+// //                 <div className="flex gap-2 mt-3">
+// //                   <button
+// //                     type="submit"
+// //                     disabled={isSubmitting}
+// //                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+// //                   >
+// //                     {isSubmitting ? "Uploading..." : "Upload"}
+// //                   </button>
+// //                   <button
+// //                     type="button"
+// //                     onClick={() => setIsOpen(false)}
+// //                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded"
+// //                   >
+// //                     Cancel
+// //                   </button>
+// //                 </div>
+
+// //                 {uploadSummary && (
+// //                   <div className="mt-3 text-sm text-gray-700">
+// //                     <p><strong>Total:</strong> {uploadSummary.total}</p>
+// //                     <p><strong>Inserted:</strong> {uploadSummary.inserted}</p>
+// //                     <p><strong>Skipped:</strong> {uploadSummary.skipped}</p>
+// //                     <p>
+// //                       <strong>Success Rate:</strong> {uploadSummary.successRate}% |{" "}
+// //                       <strong>Failed:</strong> {uploadSummary.failedRate}%
+// //                     </p>
+// //                   </div>
+// //                 )}
+
+// //                 {apiError && <p className="text-red-600 mt-2">{apiError}</p>}
+// //               </form>
+// //             )}
+// //           </div>
+// //         </div>
+// //       </Modal>
+// //     </>
+// //   );
+// // };
+
+// // export default AddLead;
+
+
+
+
+
 // import React, { useState } from "react";
-// import { Plus, AlertCircle, Upload } from "lucide-react";
+// import { Plus, AlertCircle } from "lucide-react";
 // import Modal from "../UserManagement/Modal.jsx";
 
-// // 🧩 Dropdown Options
 // const leadSources = [
 //   "Cold Call", "Website", "Referral", "LinkedIn", "Trade Show",
 //   "Email Campaign", "Social Media", "Event", "Organic Search", "Paid Ads",
@@ -11,7 +299,6 @@
 // const tripTypes = ["Solo", "Group", "Family", "Couple", "Honeymoon"];
 // const leadStatuses = ["Hot", "Warm", "Cold", "Converted", "Lost"];
 
-// // 🧩 Input Field Component
 // const InputField = ({ name, type = "text", placeholder, required, value, error, onChange }) => (
 //   <div className="h-[4.5rem]">
 //     <label className="block text-xs font-medium text-gray-700 mb-0.5">
@@ -28,11 +315,14 @@
 //       }`}
 //       autoComplete="off"
 //     />
-//     {error && <p className="text-xs text-red-600 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {error}</p>}
+//     {error && (
+//       <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+//         <AlertCircle className="w-3 h-3" /> {error}
+//       </p>
+//     )}
 //   </div>
 // );
 
-// // 🧩 Select Field Component
 // const SelectField = ({ name, options, required, value, error, onChange }) => (
 //   <div className="h-[4.5rem]">
 //     <label className="block text-xs font-medium text-gray-700 mb-0.5">
@@ -47,33 +337,50 @@
 //       }`}
 //     >
 //       <option value="">Select {name}</option>
-//       {options.map((opt) => <option key={opt}>{opt}</option>)}
+//       {options.map((opt) => (
+//         <option key={opt} value={opt}>
+//           {opt}
+//         </option>
+//       ))}
 //     </select>
-//     {error && <p className="text-xs text-red-600 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {error}</p>}
+//     {error && (
+//       <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+//         <AlertCircle className="w-3 h-3" /> {error}
+//       </p>
+//     )}
 //   </div>
 // );
 
 // const AddLead = ({ onLeadAdded }) => {
 //   const [isOpen, setIsOpen] = useState(false);
-//   const [tab, setTab] = useState("manual"); // manual | upload
 //   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [submitSuccess, setSubmitSuccess] = useState(false);
 //   const [apiError, setApiError] = useState("");
-//   const [uploadSummary, setUploadSummary] = useState(null);
 
 //   const [formData, setFormData] = useState({
-//     name: "", email: "", phone: "", whatsAppNo: "",
-//     departureCity: "", destination: "", expectedTravelDate: "",
-//     noOfDays: "", placesToCover: "", noOfPerson: "",
-//     noOfChild: "", childAge: "", leadSource: "",
-//     leadType: "", tripType: "", company: "",
-//     leadStatus: "Hot", value: "", notes: "",
+//     name: "",
+//     email: "",
+//     phone: "",
+//     whatsAppNo: "",
+//     departureCity: "",
+//     destination: "",
+//     expectedTravelDate: "",
+//     noOfDays: "",
+//     placesToCover: "",
+//     noOfPerson: "",
+//     noOfChild: "",
+//     childAge: "",
+//     leadSource: "",
+//     leadType: "",
+//     tripType: "",
+//     company: "",
+//     leadStatus: "Hot",
+//     value: "",
+//     notes: "",
 //   });
 
 //   const [errors, setErrors] = useState({});
-//   const [file, setFile] = useState(null);
 
-//   // 🧠 Validate manual form (only required fields: name, phone, departureCity)
+//   // Validation
 //   const validate = (data) => {
 //     const newErrors = {};
 //     if (!data.name) newErrors.name = "Name is required";
@@ -87,41 +394,62 @@
 //     setFormData((prev) => ({ ...prev, [name]: value }));
 //   };
 
-//   // 🧩 Submit manual lead
-//   const handleManualSubmit = async (e) => {
+//   const handleSubmit = async (e) => {
 //     e.preventDefault();
+//     setApiError("");
 //     const newErrors = validate(formData);
 //     setErrors(newErrors);
-//     if (Object.keys(newErrors).length > 0) return;
+//     if (Object.keys(newErrors).length) return;
 
 //     setIsSubmitting(true);
-//     setApiError("");
 
 //     try {
-//       // Convert phone to array by splitting on comma
-//       const payload = { ...formData, phone: formData.phone.split(",").map(p => p.trim()) };
+//       // Split phone string by commas and trim, convert to array
+//       const payload = {
+//         ...formData,
+//         phone: formData.phone.split(",").map((p) => p.trim()),
+//         noOfDays: formData.noOfDays ? Number(formData.noOfDays) : undefined,
+//         noOfPerson: formData.noOfPerson ? Number(formData.noOfPerson) : undefined,
+//         noOfChild: formData.noOfChild ? Number(formData.noOfChild) : undefined,
+//         value: formData.value ? Number(formData.value) : undefined,
+//         expectedTravelDate: formData.expectedTravelDate ? new Date(formData.expectedTravelDate) : undefined,
+//       };
 
-//       const res = await fetch("http://localhost:4000/leads", {
+//       const res = await fetch("http://localhost:4000/leads/lead", {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify(payload),
 //       });
-//       if (!res.ok) throw new Error("Failed to add lead");
 
-//       setSubmitSuccess(true);
+//       if (!res.ok) {
+//         const errorData = await res.json();
+//         throw new Error(errorData.message || "Failed to add lead");
+//       }
+
 //       onLeadAdded?.();
-//       setTimeout(() => {
-//         setIsOpen(false);
-//         setSubmitSuccess(false);
-//         setFormData({
-//           name: "", email: "", phone: "", whatsAppNo: "",
-//           departureCity: "", destination: "", expectedTravelDate: "",
-//           noOfDays: "", placesToCover: "", noOfPerson: "",
-//           noOfChild: "", childAge: "", leadSource: "",
-//           leadType: "", tripType: "", company: "",
-//           leadStatus: "Hot", value: "", notes: "",
-//         });
-//       }, 1500);
+//       setIsOpen(false);
+//       setFormData({
+//         name: "",
+//         email: "",
+//         phone: "",
+//         whatsAppNo: "",
+//         departureCity: "",
+//         destination: "",
+//         expectedTravelDate: "",
+//         noOfDays: "",
+//         placesToCover: "",
+//         noOfPerson: "",
+//         noOfChild: "",
+//         childAge: "",
+//         leadSource: "",
+//         leadType: "",
+//         tripType: "",
+//         company: "",
+//         leadStatus: "Hot",
+//         value: "",
+//         notes: "",
+//       });
+//       setErrors({});
 //     } catch (err) {
 //       setApiError(err.message);
 //     } finally {
@@ -129,51 +457,8 @@
 //     }
 //   };
 
-//   // 🧩 Excel Upload
-//   const handleFileUpload = async (e) => {
-//   e.preventDefault();
-//   if (!file) return alert("Please select a file first!");
-
-//   setIsSubmitting(true);
-//   setUploadSummary(null);
-//   setApiError("");
-
-//   try {
-//     setUploadSummary({ status: "Processing..." }); // <-- show processing status
-
-//     const formDataObj = new FormData();
-//     formDataObj.append("file", file);
-
-//     const res = await fetch("http://localhost:4000/leads/upload", {
-//       method: "POST",
-//       body: formDataObj,
-//     });
-
-//     const data = await res.json();
-//     if (!res.ok) throw new Error(data.error || "Failed to upload");
-
-//     setUploadSummary({
-//       status: "Completed",
-//       total: data.total,
-//       inserted: data.inserted,
-//       skipped: data.skipped,
-//       errors: data.errors,
-//       successRate: data.successRate,
-//       failedRate: data.failedRate,
-//     });
-
-//     onLeadAdded?.();
-//   } catch (err) {
-//     setApiError(err.message);
-//     setUploadSummary(null);
-//   } finally {
-//     setIsSubmitting(false);
-//   }
-// };
-
 //   return (
 //     <>
-//       {/* Open Modal */}
 //       <button
 //         onClick={() => setIsOpen(true)}
 //         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition"
@@ -181,88 +466,52 @@
 //         <Plus className="w-4 h-4" /> Add Lead
 //       </button>
 
-//       {/* Modal */}
 //       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} size="large">
 //         <div className="flex flex-col h-full max-h-[95vh]">
-//           {/* Header */}
 //           <div className="p-4 border-b flex justify-between items-center">
 //             <h2 className="text-lg font-bold text-gray-900">Add New Lead</h2>
-//             <div className="flex gap-2">
-//               <button
-//                 className={`px-3 py-1 rounded ${tab === "manual" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}`}
-//                 onClick={() => setTab("manual")}
-//               >
-//                 Manual
-//               </button>
-//               <button
-//                 className={`px-3 py-1 rounded ${tab === "upload" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}`}
-//                 onClick={() => setTab("upload")}
-//               >
-//                 Upload Excel
-//               </button>
-//             </div>
+//             <button
+//               onClick={() => setIsOpen(false)}
+//               className="text-gray-500 hover:text-gray-900 font-bold"
+//               aria-label="Close modal"
+//             >
+//               ×
+//             </button>
 //           </div>
 
-//           {/* Body */}
 //           <div className="flex-1 overflow-y-auto p-4">
-//             {tab === "manual" ? (
-//               <form onSubmit={handleManualSubmit} className="space-y-3" noValidate>
-//                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-//                   <InputField name="name" value={formData.name} onChange={handleChange} required error={errors.name} />
-//                   <InputField name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} />
-//                   <InputField name="phone" value={formData.phone} onChange={handleChange} required error={errors.phone} placeholder="Separate multiple numbers with commas" />
-//                   <InputField name="whatsAppNo" value={formData.whatsAppNo} onChange={handleChange} error={errors.whatsAppNo} />
-//                   <InputField name="departureCity" value={formData.departureCity} onChange={handleChange} required error={errors.departureCity} />
-//                   <InputField name="destination" value={formData.destination} onChange={handleChange} error={errors.destination} />
-//                   <InputField name="expectedTravelDate" type="date" value={formData.expectedTravelDate} onChange={handleChange} error={errors.expectedTravelDate} />
-//                   <InputField name="noOfDays" type="number" value={formData.noOfDays} onChange={handleChange} error={errors.noOfDays} />
-//                   <InputField name="placesToCover" value={formData.placesToCover} onChange={handleChange} error={errors.placesToCover} />
-//                   <InputField name="noOfPerson" type="number" value={formData.noOfPerson} onChange={handleChange} error={errors.noOfPerson} />
-//                   <InputField name="noOfChild" type="number" value={formData.noOfChild} onChange={handleChange} error={errors.noOfChild} />
-//                   <InputField name="childAge" value={formData.childAge} onChange={handleChange} error={errors.childAge} />
-//                   <SelectField name="leadSource" options={leadSources} value={formData.leadSource} onChange={handleChange} error={errors.leadSource} />
-//                   <SelectField name="leadType" options={leadTypes} value={formData.leadType} onChange={handleChange} error={errors.leadType} />
-//                   <SelectField name="tripType" options={tripTypes} value={formData.tripType} onChange={handleChange} error={errors.tripType} />
-//                   <InputField name="company" value={formData.company} onChange={handleChange} error={errors.company} />
-//                   <SelectField name="leadStatus" options={leadStatuses} value={formData.leadStatus} onChange={handleChange} error={errors.leadStatus} />
-//                   <InputField name="value" type="number" value={formData.value} onChange={handleChange} error={errors.value} />
-//                 </div>
-//                 <div className="mt-3 flex gap-2">
-//                   <button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-//                     {isSubmitting ? "Saving..." : "Save Lead"}
-//                   </button>
-//                   <button type="button" onClick={() => setIsOpen(false)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded">
-//                     Cancel
-//                   </button>
-//                 </div>
-//                 {apiError && <p className="text-red-600 mt-2">{apiError}</p>}
-//                 {submitSuccess && <p className="text-green-600 mt-2">Lead added successfully!</p>}
-//               </form>
-//             ) : (
-//               <form onSubmit={handleFileUpload} className="space-y-3">
-//                 <div>
-//                   <label className="block text-sm font-medium text-gray-700 mb-1">Select Excel File</label>
-//                   <input type="file" accept=".xlsx,.xls" onChange={(e) => setFile(e.target.files[0])} className="border p-2 rounded w-full"/>
-//                 </div>
-//                 <div className="flex gap-2">
-//                   <button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-//                     {isSubmitting ? "Uploading..." : "Upload"}
-//                   </button>
-//                   <button type="button" onClick={() => setIsOpen(false)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded">
-//                     Cancel
-//                   </button>
-//                 </div>
-//                 {apiError && <p className="text-red-600 mt-2">{apiError}</p>}
-//                 {uploadSummary && (
-//   <div className="mt-2 text-sm text-gray-700">
-//     <p>Total Records: {uploadSummary.total}</p>
-//     <p>Successful: {uploadSummary.success}</p>
-//     <p>Failed: {uploadSummary.failed}</p>
-//   </div>
-// )}
+//             <form onSubmit={handleSubmit} className="space-y-3">
+//               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+//                 <InputField name="name" value={formData.name} onChange={handleChange} required error={errors.name} />
+//                 <InputField name="phone" value={formData.phone} onChange={handleChange} required error={errors.phone} placeholder="Comma separated if multiple" />
+//                 <InputField name="departureCity" value={formData.departureCity} onChange={handleChange} required error={errors.departureCity} />
+//                 <InputField name="email" value={formData.email} onChange={handleChange} type="email" />
+//                 <InputField name="whatsAppNo" value={formData.whatsAppNo} onChange={handleChange} />
+//                 <SelectField name="leadSource" options={leadSources} value={formData.leadSource} onChange={handleChange} />
+//                 <SelectField name="leadType" options={leadTypes} value={formData.leadType} onChange={handleChange} />
+//                 <SelectField name="tripType" options={tripTypes} value={formData.tripType} onChange={handleChange} />
+//                 <InputField name="company" value={formData.company} onChange={handleChange} />
+//                 <SelectField name="leadStatus" options={leadStatuses} value={formData.leadStatus} onChange={handleChange} />
+//                 <InputField name="noOfDays" value={formData.noOfDays} onChange={handleChange} type="number" />
+//                 <InputField name="noOfPerson" value={formData.noOfPerson} onChange={handleChange} type="number" />
+//                 <InputField name="noOfChild" value={formData.noOfChild} onChange={handleChange} type="number" />
+//                 <InputField name="childAge" value={formData.childAge} onChange={handleChange} />
+//                 <InputField name="expectedTravelDate" value={formData.expectedTravelDate} onChange={handleChange} type="date" />
+//                 <InputField name="placesToCover" value={formData.placesToCover} onChange={handleChange} />
+//                 <InputField name="value" value={formData.value} onChange={handleChange} type="number" />
+//                 <InputField name="notes" value={formData.notes} onChange={handleChange} />
+//               </div>
 
-//               </form>
-//             )}
+//               {apiError && <p className="text-red-600 mt-2 flex items-center gap-2"><AlertCircle className="w-5 h-5" /> {apiError}</p>}
+
+//               <button
+//                 type="submit"
+//                 disabled={isSubmitting}
+//                 className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+//               >
+//                 {isSubmitting ? "Saving..." : "Save Lead"}
+//               </button>
+//             </form>
 //           </div>
 //         </div>
 //       </Modal>
@@ -274,13 +523,10 @@
 
 
 
-
-
-import React, { useState, useEffect } from "react";
-import { Plus, AlertCircle } from "lucide-react";
+import React, { useState } from "react";
+import { Plus, AlertCircle, UploadCloud } from "lucide-react";
 import Modal from "../UserManagement/Modal.jsx";
 
-// 🧩 Dropdown Options
 const leadSources = [
   "Cold Call", "Website", "Referral", "LinkedIn", "Trade Show",
   "Email Campaign", "Social Media", "Event", "Organic Search", "Paid Ads",
@@ -289,12 +535,10 @@ const leadTypes = ["International", "Domestic"];
 const tripTypes = ["Solo", "Group", "Family", "Couple", "Honeymoon"];
 const leadStatuses = ["Hot", "Warm", "Cold", "Converted", "Lost"];
 
-// 🧩 Input Component
 const InputField = ({ name, type = "text", placeholder, required, value, error, onChange }) => (
   <div className="h-[4.5rem]">
     <label className="block text-xs font-medium text-gray-700 mb-0.5">
-      {name.charAt(0).toUpperCase() + name.slice(1)}{" "}
-      {required && <span className="text-red-500">*</span>}
+      {name.charAt(0).toUpperCase() + name.slice(1)} {required && <span className="text-red-500">*</span>}
     </label>
     <input
       type={type}
@@ -315,12 +559,10 @@ const InputField = ({ name, type = "text", placeholder, required, value, error, 
   </div>
 );
 
-// 🧩 Select Component
 const SelectField = ({ name, options, required, value, error, onChange }) => (
   <div className="h-[4.5rem]">
     <label className="block text-xs font-medium text-gray-700 mb-0.5">
-      {name.charAt(0).toUpperCase() + name.slice(1)}{" "}
-      {required && <span className="text-red-500">*</span>}
+      {name.charAt(0).toUpperCase() + name.slice(1)} {required && <span className="text-red-500">*</span>}
     </label>
     <select
       name={name}
@@ -332,7 +574,9 @@ const SelectField = ({ name, options, required, value, error, onChange }) => (
     >
       <option value="">Select {name}</option>
       {options.map((opt) => (
-        <option key={opt}>{opt}</option>
+        <option key={opt} value={opt}>
+          {opt}
+        </option>
       ))}
     </select>
     {error && (
@@ -345,26 +589,41 @@ const SelectField = ({ name, options, required, value, error, onChange }) => (
 
 const AddLead = ({ onLeadAdded }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [tab, setTab] = useState("manual");
+  const [tab, setTab] = useState("manual"); // "manual" or "upload"
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
-  const [uploadSummary, setUploadSummary] = useState(null);
-  const [progress, setProgress] = useState(0);
-  const [recordProgress, setRecordProgress] = useState({ current: 0, total: 0 });
+  const [uploadError, setUploadError] = useState("");
+  const [uploadSuccess, setUploadSuccess] = useState("");
 
+  // Form state for manual input
   const [formData, setFormData] = useState({
-    name: "", email: "", phone: "", whatsAppNo: "",
-    departureCity: "", destination: "", expectedTravelDate: "",
-    noOfDays: "", placesToCover: "", noOfPerson: "",
-    noOfChild: "", childAge: "", leadSource: "",
-    leadType: "", tripType: "", company: "",
-    leadStatus: "Hot", value: "", notes: "",
+    name: "",
+    email: "",
+    phone: "",
+    whatsAppNo: "",
+    departureCity: "",
+    destination: "",
+    expectedTravelDate: "",
+    noOfDays: "",
+    placesToCover: "",
+    noOfPerson: "",
+    noOfChild: "",
+    childAge: "",
+    leadSource: "",
+    leadType: "",
+    tripType: "",
+    company: "",
+    leadStatus: "Hot",
+    value: "",
+    notes: "",
   });
 
   const [errors, setErrors] = useState({});
+
+  // File upload state
   const [file, setFile] = useState(null);
 
-  // 🧩 Manual Validation
+  // Validation for manual form
   const validate = (data) => {
     const newErrors = {};
     if (!data.name) newErrors.name = "Name is required";
@@ -373,30 +632,68 @@ const AddLead = ({ onLeadAdded }) => {
     return newErrors;
   };
 
+  // Handle manual form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🧩 Manual Submit
-  const handleManualSubmit = async (e) => {
+  // Submit manual form
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError("");
     const newErrors = validate(formData);
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    if (Object.keys(newErrors).length) return;
 
     setIsSubmitting(true);
-    setApiError("");
+
     try {
-      const payload = { ...formData, phone: formData.phone.split(",").map((p) => p.trim()) };
-      const res = await fetch("http://localhost:4000/leads", {
+      const payload = {
+        ...formData,
+        phone: formData.phone.trim(),
+        noOfDays: formData.noOfDays ? Number(formData.noOfDays) : undefined,
+        noOfPerson: formData.noOfPerson ? Number(formData.noOfPerson) : undefined,
+        noOfChild: formData.noOfChild ? Number(formData.noOfChild) : undefined,
+        value: formData.value ? Number(formData.value) : undefined,
+        expectedTravelDate: formData.expectedTravelDate ? new Date(formData.expectedTravelDate) : undefined,
+      };
+
+      const res = await fetch("http://localhost:4000/leads/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Failed to add lead");
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to add lead");
+      }
+
       onLeadAdded?.();
       setIsOpen(false);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        whatsAppNo: "",
+        departureCity: "",
+        destination: "",
+        expectedTravelDate: "",
+        noOfDays: "",
+        placesToCover: "",
+        noOfPerson: "",
+        noOfChild: "",
+        childAge: "",
+        leadSource: "",
+        leadType: "",
+        tripType: "",
+        company: "",
+        leadStatus: "Hot",
+        value: "",
+        notes: "",
+      });
+      setErrors({});
     } catch (err) {
       setApiError(err.message);
     } finally {
@@ -404,48 +701,48 @@ const AddLead = ({ onLeadAdded }) => {
     }
   };
 
-  // 🧩 Upload Excel + Progress System
-  const handleFileUpload = async (e) => {
-    e.preventDefault();
-    if (!file) return alert("Please select a file first!");
+  // Handle file input change
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    setUploadError("");
+    setUploadSuccess("");
+  };
 
+  // Upload file handler
+  const handleFileUpload = async () => {
+    if (!file) {
+      setUploadError("Please select a file to upload.");
+      return;
+    }
+    setUploadError("");
+    setUploadSuccess("");
     setIsSubmitting(true);
-    setApiError("");
-    setProgress(0);
-    setRecordProgress({ current: 0, total: 0 });
-    setUploadSummary(null);
 
-    const formDataObj = new FormData();
-    formDataObj.append("file", file);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    // ✅ Upload with progress tracking
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:4000/leads/upload");
+      const res = await fetch("http://localhost:4000/leads/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const percent = Math.round((event.loaded * 100) / event.total);
-        setProgress(percent);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Upload failed");
       }
-    };
 
-    xhr.onload = async () => {
-      if (xhr.status === 200) {
-        const res = JSON.parse(xhr.responseText);
-        setUploadSummary(res);
-        onLeadAdded?.();
-      } else {
-        setApiError("Upload failed");
-      }
+      const result = await res.json();
+      setUploadSuccess(`Successfully uploaded ${result.insertedCount || "some"} leads.`);
+      onLeadAdded?.();
+      setFile(null);
+      // Reset file input value (hacky but works)
+      document.getElementById("file-upload-input").value = "";
+    } catch (err) {
+      setUploadError(err.message);
+    } finally {
       setIsSubmitting(false);
-    };
-
-    xhr.onerror = () => {
-      setApiError("Network error during upload");
-      setIsSubmitting(false);
-    };
-
-    xhr.send(formDataObj);
+    }
   };
 
   return (
@@ -461,96 +758,104 @@ const AddLead = ({ onLeadAdded }) => {
         <div className="flex flex-col h-full max-h-[95vh]">
           <div className="p-4 border-b flex justify-between items-center">
             <h2 className="text-lg font-bold text-gray-900">Add New Lead</h2>
-            <div className="flex gap-2">
-              <button
-                className={`px-3 py-1 rounded ${tab === "manual" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}`}
-                onClick={() => setTab("manual")}
-              >
-                Manual
-              </button>
-              <button
-                className={`px-3 py-1 rounded ${tab === "upload" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}`}
-                onClick={() => setTab("upload")}
-              >
-                Upload Excel
-              </button>
-            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-gray-500 hover:text-gray-900 font-bold"
+              aria-label="Close modal"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="p-4 flex space-x-4 border-b">
+            <button
+              onClick={() => setTab("manual")}
+              className={`px-4 py-2 font-medium rounded ${tab === "manual" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}`}
+            >
+              Manual Entry
+            </button>
+            <button
+              onClick={() => setTab("upload")}
+              className={`px-4 py-2 font-medium rounded ${tab === "upload" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"}`}
+            >
+              Upload Leads
+            </button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4">
-            {tab === "manual" ? (
-              // Manual Form
-              <form onSubmit={handleManualSubmit} className="space-y-3">
+            {tab === "manual" && (
+              <form onSubmit={handleSubmit} className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <InputField name="name" value={formData.name} onChange={handleChange} required error={errors.name} />
-                  <InputField name="phone" value={formData.phone} onChange={handleChange} required error={errors.phone} />
+                  <InputField name="phone" value={formData.phone} onChange={handleChange} required error={errors.phone} placeholder="Comma separated if multiple" />
                   <InputField name="departureCity" value={formData.departureCity} onChange={handleChange} required error={errors.departureCity} />
+                  <InputField name="email" value={formData.email} onChange={handleChange} type="email" />
+                  <InputField name="whatsAppNo" value={formData.whatsAppNo} onChange={handleChange} />
                   <SelectField name="leadSource" options={leadSources} value={formData.leadSource} onChange={handleChange} />
                   <SelectField name="leadType" options={leadTypes} value={formData.leadType} onChange={handleChange} />
+                  <SelectField name="tripType" options={tripTypes} value={formData.tripType} onChange={handleChange} />
+                  <InputField name="company" value={formData.company} onChange={handleChange} />
+                  <SelectField name="leadStatus" options={leadStatuses} value={formData.leadStatus} onChange={handleChange} />
+                  <InputField name="noOfDays" value={formData.noOfDays} onChange={handleChange} type="number" />
+                  <InputField name="noOfPerson" value={formData.noOfPerson} onChange={handleChange} type="number" />
+                  <InputField name="noOfChild" value={formData.noOfChild} onChange={handleChange} type="number" />
+                  <InputField name="childAge" value={formData.childAge} onChange={handleChange} />
+                  <InputField name="expectedTravelDate" value={formData.expectedTravelDate} onChange={handleChange} type="date" />
+                  <InputField name="placesToCover" value={formData.placesToCover} onChange={handleChange} />
+                  <InputField name="value" value={formData.value} onChange={handleChange} type="number" />
+                  <InputField name="notes" value={formData.notes} onChange={handleChange} />
                 </div>
-                <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white px-4 py-2 rounded">
+
+                {apiError && (
+                  <p className="text-red-600 mt-2 flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5" /> {apiError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+                >
                   {isSubmitting ? "Saving..." : "Save Lead"}
                 </button>
               </form>
-            ) : (
-              // Upload Form
-              <form onSubmit={handleFileUpload} className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Select Excel File</label>
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    onChange={(e) => setFile(e.target.files[0])}
-                    className="border p-2 rounded w-full"
-                  />
-                </div>
+            )}
 
-                {/* ✅ Progress Bar */}
-                {isSubmitting && (
-                  <div className="mt-2">
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className="bg-blue-600 h-3 rounded-full transition-all duration-200"
-                        style={{ width: `${progress}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm text-gray-700 mt-1 text-center">
-                      Uploading... {progress}% 
-                    </p>
-                  </div>
+            {tab === "upload" && (
+              <div className="flex flex-col space-y-4 max-w-md">
+                <p className="text-sm text-gray-600">
+                  Upload a CSV file with lead data. The CSV should have columns matching lead fields like: name, email, phone, departureCity, etc.
+                </p>
+
+                <input
+                  type="file"
+                  id="file-upload-input"
+                  accept=".csv"
+                  onChange={handleFileChange}
+                  className="border p-2 rounded"
+                />
+
+                {uploadError && (
+                  <p className="text-red-600 flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5" /> {uploadError}
+                  </p>
                 )}
 
-                <div className="flex gap-2 mt-3">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                  >
-                    {isSubmitting ? "Uploading..." : "Upload"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsOpen(false)}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded"
-                  >
-                    Cancel
-                  </button>
-                </div>
-
-                {uploadSummary && (
-                  <div className="mt-3 text-sm text-gray-700">
-                    <p><strong>Total:</strong> {uploadSummary.total}</p>
-                    <p><strong>Inserted:</strong> {uploadSummary.inserted}</p>
-                    <p><strong>Skipped:</strong> {uploadSummary.skipped}</p>
-                    <p>
-                      <strong>Success Rate:</strong> {uploadSummary.successRate}% |{" "}
-                      <strong>Failed:</strong> {uploadSummary.failedRate}%
-                    </p>
-                  </div>
+                {uploadSuccess && (
+                  <p className="text-green-600 flex items-center gap-2">
+                    <UploadCloud className="w-5 h-5" /> {uploadSuccess}
+                  </p>
                 )}
 
-                {apiError && <p className="text-red-600 mt-2">{apiError}</p>}
-              </form>
+                <button
+                  onClick={handleFileUpload}
+                  disabled={isSubmitting || !file}
+                  className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+                >
+                  {isSubmitting ? "Uploading..." : "Upload Leads"}
+                </button>
+              </div>
             )}
           </div>
         </div>
