@@ -1,437 +1,237 @@
-// import React, { useState } from "react";
-// import { Eye, Edit, Trash2 } from "lucide-react";
+// import React, { useState, useEffect } from "react";
 
 // const CustomerData = () => {
-//   const [customers, setCustomers] = useState([
-//     {
-//       id: 1,
-//       name: "Rahul Sharma",
-//       phone: "9876543210",
-//       groupNo: "G-101",
-//       email: "rahul@gmail.com",
-//       address: "Delhi, India",
-//     },
-//     {
-//       id: 2,
-//       name: "Priya Verma",
-//       phone: "9123456789",
-//       groupNo: "G-202",
-//       email: "priya@gmail.com",
-//       address: "Mumbai, India",
-//     },
+//   const [customers, setCustomers] = useState([]);
+//   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-//     {
-//       id: 3,
-//       name: "Ronit Das",
-//       phone: "9123456789",
-//       groupNo: "G-205",
-//       email: "rahul@gmail.com",
-//       address: "Hyderabad, India",
-//     },
-//   ]);
+//   // Fetch list of customers for the dropdown
+//   useEffect(() => {
+//     const fetchCustomers = async () => {
+//       try {
+//         const response = await fetch("http://localhost:4000/customer/all");
+//         if (!response.ok) throw new Error("Failed to fetch customers");
+//         const data = await response.json();
+//         setCustomers(data);
+//       } catch (error) {
+//         console.error(error);
+//       }
+//     };
+//     fetchCustomers();
+//   }, []);
 
-//   const [viewData, setViewData] = useState(null);
-//   const [editData, setEditData] = useState(null);
+//   // Fetch details of selected customer
+//   const handleSelectCustomer = async (e) => {
+//     const id = e.target.value;
+//     if (!id) {
+//       setSelectedCustomer(null);
+//       return;
+//     }
 
-//   const handleDelete = (id) => {
-//     if (window.confirm("Are you sure you want to delete?")) {
-//       setCustomers(customers.filter((c) => c.id !== id));
+//     try {
+//       const response = await fetch(`http://localhost:4000/customer/${id}`);
+//       if (!response.ok) throw new Error("Failed to fetch customer details");
+//       const data = await response.json();
+//       setSelectedCustomer(data);
+//     } catch (error) {
+//       console.error(error);
 //     }
 //   };
 
-//   const handleEditSave = () => {
-//     setCustomers((prev) =>
-//       prev.map((c) => (c.id === editData.id ? editData : c))
-//     );
-//     setEditData(null);
-//   };
-
 //   return (
-//     <div className="p-6 max-w-5xl mx-auto">
-//       <h2 className="text-2xl font-bold mb-6">Customer List</h2>
+//     <div className="p-6 max-w-md mx-auto">
+//       <h2 className="text-2xl font-bold mb-4">Select a Customer</h2>
 
-//       <div className="bg-white shadow rounded p-4">
-//         {/* TABLE */}
-//         <table className="w-full border-collapse">
-//           <thead>
-//             <tr className="bg-gray-800 text-white">
-//               <th className="p-3 text-left">Customer Name</th>
-//               <th className="p-3 text-left">Group No</th>
-//               <th className="p-3 text-left">Actions</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {customers.map((c, index) => (
-//               <tr
-//                 key={c.id}
-//                 className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-//               >
-//                 <td className="p-3 border-b">{c.name}</td>
-//                 <td className="p-3 border-b">{c.groupNo}</td>
-//                 <td className="p-3 border-b flex gap-3">
-//                   <button
-//                     className="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
-//                     onClick={() => setViewData(c)}
-//                   >
-//                     <Eye size={16} />
-//                   </button>
-//                   <button
-//                     className="p-2 bg-green-100 text-green-600 rounded-full hover:bg-green-200"
-//                     onClick={() => setEditData({ ...c })}
-//                   >
-//                     <Edit size={16} />
-//                   </button>
-//                   <button
-//                     className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
-//                     onClick={() => handleDelete(c.id)}
-//                   >
-//                     <Trash2 size={16} />
-//                   </button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
+//       {/* Dropdown */}
+//       <select
+//         value={selectedCustomer?.id || ""}
+//         onChange={handleSelectCustomer}
+//         className="w-full p-2 border rounded mb-4"
+//       >
+//         <option value="">-- Select Customer --</option>
+//         {customers.map((c) => (
+//           <option key={c.id} value={c.id}>
+//             {c.name} ({c.groupNo})
+//           </option>
+//         ))}
+//       </select>
 
-//       {/* View Modal - Centered on Screen */}
-//       {viewData && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-//           <div className="w-96 bg-white border rounded shadow-lg p-6 relative">
-//             <button
-//               onClick={() => setViewData(null)}
-//               className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
-//               aria-label="Close view modal"
-//             >
-//               &times;
-//             </button>
-
-//             <h3 className="text-xl font-bold mb-4">Customer Details</h3>
-//             <p className="mb-2"><strong>Name:</strong> {viewData.name}</p>
-//             <p className="mb-2"><strong>Phone:</strong> {viewData.phone}</p>
-//             <p className="mb-2"><strong>Group No:</strong> {viewData.groupNo}</p>
-//             <p className="mb-2"><strong>Email:</strong> {viewData.email}</p>
-//             <p className="mb-2"><strong>Address:</strong> {viewData.address}</p>
+//       {/* Read-only Form */}
+//       {selectedCustomer && (
+//         <form className="p-4 border rounded bg-gray-50 space-y-3">
+//           <div>
+//             <label className="block font-semibold mb-1">Name:</label>
+//             <input
+//               type="text"
+//               value={selectedCustomer.name}
+//               readOnly
+//               className="w-full border p-2 rounded bg-gray-100"
+//             />
 //           </div>
-//         </div>
-//       )}
 
-//       {/* Edit Modal - Centered on Screen */}
-//       {editData && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-//           <div className="w-96 bg-white border rounded shadow-lg p-6 relative">
-//             <button
-//               onClick={() => setEditData(null)}
-//               className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
-//               aria-label="Close edit modal"
-//             >
-//               &times;
-//             </button>
-
-//             <h3 className="text-xl font-bold mb-4">Edit Customer</h3>
-//             <div className="space-y-3">
-//               <input
-//                 className="w-full border p-2 rounded"
-//                 value={editData.name}
-//                 onChange={(e) =>
-//                   setEditData({ ...editData, name: e.target.value })
-//                 }
-//                 placeholder="Name"
-//               />
-//               <input
-//                 className="w-full border p-2 rounded"
-//                 value={editData.phone}
-//                 onChange={(e) =>
-//                   setEditData({ ...editData, phone: e.target.value })
-//                 }
-//                 placeholder="Phone"
-//               />
-//               <input
-//                 className="w-full border p-2 rounded"
-//                 value={editData.groupNo}
-//                 onChange={(e) =>
-//                   setEditData({ ...editData, groupNo: e.target.value })
-//                 }
-//                 placeholder="Group No"
-//               />
-//               <input
-//                 className="w-full border p-2 rounded"
-//                 value={editData.email}
-//                 onChange={(e) =>
-//                   setEditData({ ...editData, email: e.target.value })
-//                 }
-//                 placeholder="Email"
-//               />
-//               <textarea
-//                 className="w-full border p-2 rounded"
-//                 rows="3"
-//                 value={editData.address}
-//                 onChange={(e) =>
-//                   setEditData({ ...editData, address: e.target.value })
-//                 }
-//                 placeholder="Address"
-//               ></textarea>
-//             </div>
-
-//             <button
-//               onClick={handleEditSave}
-//               className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-//             >
-//               Save Changes
-//             </button>
-
-//             <button
-//               onClick={() => setEditData(null)}
-//               className="mt-2 w-full bg-gray-300 py-2 rounded hover:bg-gray-400"
-//             >
-//               Cancel
-//             </button>
+//           <div>
+//             <label className="block font-semibold mb-1">Phone:</label>
+//             <input
+//               type="text"
+//               value={selectedCustomer.phone}
+//               readOnly
+//               className="w-full border p-2 rounded bg-gray-100"
+//             />
 //           </div>
-//         </div>
+
+//           <div>
+//             <label className="block font-semibold mb-1">Group No:</label>
+//             <input
+//               type="text"
+//               value={selectedCustomer.groupNo}
+//               readOnly
+//               className="w-full border p-2 rounded bg-gray-100"
+//             />
+//           </div>
+
+//           <div>
+//             <label className="block font-semibold mb-1">Email:</label>
+//             <input
+//               type="text"
+//               value={selectedCustomer.email}
+//               readOnly
+//               className="w-full border p-2 rounded bg-gray-100"
+//             />
+//           </div>
+
+//           <div>
+//             <label className="block font-semibold mb-1">Address:</label>
+//             <textarea
+//               value={selectedCustomer.address}
+//               readOnly
+//               className="w-full border p-2 rounded bg-gray-100"
+//               rows={3}
+//             />
+//           </div>
+//         </form>
 //       )}
 //     </div>
 //   );
 // };
 
-// export default CustomerData;                       
+// export default CustomerData;
 
 
 
 
-
-
-import React, { useState } from "react";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
 
 const CustomerData = () => {
-  const [customers, setCustomers] = useState([
-    {
-      id: 1,
-      name: "Rahul Sharma",
-      phone: "9876543210",
-      groupNo: "G-101",
-      email: "rahul@gmail.com",
-      address: "Delhi, India",
-    },
-    {
-      id: 2,
-      name: "Priya Verma",
-      phone: "9123456789",
-      groupNo: "G-202",
-      email: "priya@gmail.com",
-      address: "Mumbai, India",
-    },
-    {
-      id: 3,
-      name: "Ronit Das",
-      phone: "9123456789",
-      groupNo: "G-205",
-      email: "rahul@gmail.com",
-      address: "Hyderabad, India",
-    },
-  ]);
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-  const [viewData, setViewData] = useState(null);
-  const [editData, setEditData] = useState(null);
-  const [filter, setFilter] = useState(""); // <-- New filter state
+  // Fetch all customers
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/customer/all");
+        if (!response.ok) throw new Error("Failed to fetch customers");
+        const data = await response.json();
+        setCustomers(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete?")) {
-      setCustomers(customers.filter((c) => c.id !== id));
+    fetchCustomers();
+  }, []);
+
+  // Fetch particular customer
+  const handleSelectCustomer = async (e) => {
+    const id = e.target.value;
+
+    if (!id) {
+      setSelectedCustomer(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:4000/customer/${id}`);
+      if (!response.ok) throw new Error("Failed to fetch customer details");
+
+      const data = await response.json();
+      setSelectedCustomer(data);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const handleEditSave = () => {
-    setCustomers((prev) =>
-      prev.map((c) => (c.id === editData.id ? editData : c))
-    );
-    setEditData(null);
-  };
-
-  // Filtered customers based on filter text
-  const filteredCustomers = customers.filter((c) => {
-    const search = filter.toLowerCase();
-    return (
-      c.name.toLowerCase().includes(search) ||
-      c.groupNo.toLowerCase().includes(search) ||
-      c.phone.toLowerCase().includes(search) ||
-      c.email.toLowerCase().includes(search) ||
-      c.address.toLowerCase().includes(search)
-    );
-  });
-
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Customer List</h2>
+    <div className="p-6 max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Select a Customer</h2>
 
-      {/* Filter input */}
-      <input
-        type="text"
-        placeholder="Search by name, group no, phone, email, address..."
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        className="mb-4 w-full p-2 border rounded"
-      />
+      {/* Customer Dropdown */}
+      <select
+        value={selectedCustomer?._id || ""}
+        onChange={handleSelectCustomer}
+        className="w-full p-2 border rounded mb-4"
+      >
+        <option value="">-- Select Customer --</option>
 
-      <div className="bg-white shadow rounded p-4">
-        {/* TABLE */}
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-800 text-white">
-              <th className="p-3 text-left">Customer Name</th>
-              <th className="p-3 text-left">Group No</th>
-              <th className="p-3 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCustomers.length > 0 ? (
-              filteredCustomers.map((c, index) => (
-                <tr
-                  key={c.id}
-                  className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                >
-                  <td className="p-3 border-b">{c.name}</td>
-                  <td className="p-3 border-b">{c.groupNo}</td>
-                  <td className="p-3 border-b flex gap-3">
-                    <button
-                      className="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200"
-                      onClick={() => setViewData(c)}
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      className="p-2 bg-green-100 text-green-600 rounded-full hover:bg-green-200"
-                      onClick={() => setEditData({ ...c })}
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
-                      onClick={() => handleDelete(c.id)}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={3}
-                  className="text-center p-4 text-gray-500 italic"
-                >
-                  No customers found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+        {customers.map((c) => (
+          <option key={c._id} value={c._id}>
+            {c.name} (Group {c.groupNo})
+          </option>
+        ))}
+      </select>
 
-      {/* View Modal */}
-      {viewData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="w-96 bg-white border rounded shadow-lg p-6 relative">
-            <button
-              onClick={() => setViewData(null)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
-              aria-label="Close view modal"
-            >
-              &times;
-            </button>
-
-            <h3 className="text-xl font-bold mb-4">Customer Details</h3>
-            <p className="mb-2">
-              <strong>Name:</strong> {viewData.name}
-            </p>
-            <p className="mb-2">
-              <strong>Phone:</strong> {viewData.phone}
-            </p>
-            <p className="mb-2">
-              <strong>Group No:</strong> {viewData.groupNo}
-            </p>
-            <p className="mb-2">
-              <strong>Email:</strong> {viewData.email}
-            </p>
-            <p className="mb-2">
-              <strong>Address:</strong> {viewData.address}
-            </p>
+      {/* Read-only Customer Details */}
+      {selectedCustomer && (
+        <form className="p-4 border rounded bg-gray-50 space-y-3">
+          <div>
+            <label className="block font-semibold mb-1">Name:</label>
+            <input
+              type="text"
+              value={selectedCustomer.name}
+              readOnly
+              className="w-full border p-2 rounded bg-gray-100"
+            />
           </div>
-        </div>
-      )}
 
-      {/* Edit Modal */}
-      {editData && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="w-96 bg-white border rounded shadow-lg p-6 relative">
-            <button
-              onClick={() => setEditData(null)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
-              aria-label="Close edit modal"
-            >
-              &times;
-            </button>
-
-            <h3 className="text-xl font-bold mb-4">Edit Customer</h3>
-            <div className="space-y-3">
-              <input
-                className="w-full border p-2 rounded"
-                value={editData.name}
-                onChange={(e) =>
-                  setEditData({ ...editData, name: e.target.value })
-                }
-                placeholder="Name"
-              />
-              <input
-                className="w-full border p-2 rounded"
-                value={editData.phone}
-                onChange={(e) =>
-                  setEditData({ ...editData, phone: e.target.value })
-                }
-                placeholder="Phone"
-              />
-              <input
-                className="w-full border p-2 rounded"
-                value={editData.groupNo}
-                onChange={(e) =>
-                  setEditData({ ...editData, groupNo: e.target.value })
-                }
-                placeholder="Group No"
-              />
-              <input
-                className="w-full border p-2 rounded"
-                value={editData.email}
-                onChange={(e) =>
-                  setEditData({ ...editData, email: e.target.value })
-                }
-                placeholder="Email"
-              />
-              <textarea
-                className="w-full border p-2 rounded"
-                rows="3"
-                value={editData.address}
-                onChange={(e) =>
-                  setEditData({ ...editData, address: e.target.value })
-                }
-                placeholder="Address"
-              ></textarea>
-            </div>
-
-            <button
-              onClick={handleEditSave}
-              className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-            >
-              Save Changes
-            </button>
-
-            <button
-              onClick={() => setEditData(null)}
-              className="mt-2 w-full bg-gray-300 py-2 rounded hover:bg-gray-400"
-            >
-              Cancel
-            </button>
+          <div>
+            <label className="block font-semibold mb-1">Phone:</label>
+            <input
+              type="text"
+              value={selectedCustomer.phone}
+              readOnly
+              className="w-full border p-2 rounded bg-gray-100"
+            />
           </div>
-        </div>
+
+          <div>
+            <label className="block font-semibold mb-1">Group No:</label>
+            <input
+              type="text"
+              value={selectedCustomer.groupNo}
+              readOnly
+              className="w-full border p-2 rounded bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1">Email:</label>
+            <input
+              type="text"
+              value={selectedCustomer.email}
+              readOnly
+              className="w-full border p-2 rounded bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1">Address:</label>
+            <textarea
+              value={selectedCustomer.address}
+              readOnly
+              rows={3}
+              className="w-full border p-2 rounded bg-gray-100"
+            />
+          </div>
+        </form>
       )}
     </div>
   );

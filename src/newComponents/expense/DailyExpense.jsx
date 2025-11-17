@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 const DailyExpense = () => {
@@ -11,6 +11,28 @@ const DailyExpense = () => {
         bill: null,
     });
 
+    const [expenses, setExpenses] = useState([]); // ✅ State for fetched expenses
+
+    // ---------------- Fetch expenses from API ----------------
+    const fetchExpenses = async () => {
+        try {
+            const response = await fetch("http://localhost:4000/expense/all");
+            const data = await response.json();
+            if (response.ok) {
+                setExpenses(data); // ✅ Store fetched expenses
+            } else {
+                console.error("Failed to fetch expenses:", data.message);
+            }
+        } catch (error) {
+            console.error("Error fetching expenses:", error);
+        }
+    };
+
+    // Fetch expenses on component mount
+    useEffect(() => {
+        fetchExpenses();
+    }, []);
+
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (name === "bill") {
@@ -21,45 +43,47 @@ const DailyExpense = () => {
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    try {
-        // Create FormData object
-        const data = new FormData();
-        data.append("AmountPaid", formData.amount);
-        data.append("reason", formData.reason);
-        data.append("PaymentMethod", formData.paymentMethod);
-        data.append("date", formData.date);
-        if (formData.bill) {
-            data.append("bill", formData.bill); // must match backend multer field name
-        }
+        try {
+            // Create FormData object
+            const data = new FormData();
+            data.append("AmountPaid", formData.amount);
+            data.append("reason", formData.reason);
+            data.append("PaymentMethod", formData.paymentMethod);
+            data.append("date", formData.date);
+            if (formData.bill) {
+                data.append("bill", formData.bill);
+            }
 
-        // Send POST request
-        const response = await fetch("http://localhost:4000/expense", {
-            method: "POST",
-            body: data,
-        });
-
-        const result = await response.json();
-        // const result = []
-
-        if (response.ok) {
-            console.log("Expense Submitted:", result);
-            setShowModal(false);
-            setFormData({
-                amount: "",
-                reason: "",
-                paymentMethod: "",
-                date: "",
-                bill: null,
+            // Send POST request
+            const response = await fetch("http://localhost:4000/expense", {
+                method: "POST",
+                body: data,
             });
-        } else {
-            console.error("Error:", result.message);
+
+            const result = await response.json();
+
+           if (response.ok) {
+    console.log("Expense Submitted:", result);
+    alert("Expense submitted successfully!"); // ✅ Added alert
+    setShowModal(false);
+    setFormData({
+        amount: "",
+        reason: "",
+        paymentMethod: "",
+        date: "",
+        bill: null,
+    });
+    fetchExpenses(); // ✅ Refresh expense list after adding
+} else {
+    console.error("Error:", result.message);
+}
+
+        } catch (error) {
+            console.error("Error submitting expense:", error);
         }
-    } catch (error) {
-        console.error("Error submitting expense:", error);
-    }
-};
+    };
 
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
@@ -87,14 +111,12 @@ const DailyExpense = () => {
                 </button>
             </div>
 
-            {/* ✅ Static Expense Table */}
+            {/* ✅ Expense Table */}
             <div className="overflow-x-auto bg-white rounded-lg shadow-md border">
                 <table className="min-w-full border-collapse">
                     <thead className="bg-gray-100 border-b">
                         <tr>
                             <th className="p-3 text-left text-sm font-semibold text-gray-600">Date</th>
-
-
                             <th className="p-3 text-left text-sm font-semibold text-gray-600">Reason</th>
                             <th className="p-3 text-left text-sm font-semibold text-gray-600">Payment Method</th>
                             <th className="p-3 text-left text-sm font-semibold text-gray-600">Amount</th>
@@ -102,21 +124,37 @@ const DailyExpense = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr className="border-b hover:bg-gray-50">
-                            <td className="p-3 text-sm text-gray-800">2025-11-03</td>
-                            <td className="p-3 text-sm text-gray-800">Snacks & Tea</td>
-                            <td className="p-3 text-sm text-gray-800">Cash</td>
-                            <td className="p-3 text-sm text-gray-800">₹250</td>
-                            <td className="p-3 text-sm text-blue-600 cursor-pointer">View</td>
-                        </tr>
-                        <tr className="border-b hover:bg-gray-50">
-                            <td className="p-3 text-sm text-gray-800">2025-11-02</td>
-                            <td className="p-3 text-sm text-gray-800">Client Lunch</td>
-                            <td className="p-3 text-sm text-gray-800">UPI</td>
-                            <td className="p-3 text-sm text-gray-800">₹1200</td>
-                            <td className="p-3 text-sm text-blue-600 cursor-pointer">View</td>
-                        </tr>
-                    </tbody>
+    {expenses.length > 0 ? (
+        expenses.map((exp) => {
+            // Convert date to readable format
+            const formattedDate = new Date(exp.date).toLocaleDateString("en-US", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+
+            return (
+                <tr key={exp._id} className="border-b hover:bg-gray-50">
+                    <td className="p-3 text-sm text-gray-800">{formattedDate}</td>
+                    <td className="p-3 text-sm text-gray-800">{exp.reason}</td>
+                    <td className="p-3 text-sm text-gray-800">{exp.PaymentMethod}</td>
+                    <td className="p-3 text-sm text-gray-800">₹{exp.AmountPaid}</td>
+                    <td className="p-3 text-sm text-blue-600 cursor-pointer">
+                        {exp.bill ? "View" : "-"}
+                    </td>
+                </tr>
+            );
+        })
+    ) : (
+        <tr>
+            <td colSpan="5" className="p-3 text-center text-gray-500">
+                No expenses found.
+            </td>
+        </tr>
+    )}
+</tbody>
+
                 </table>
             </div>
 
