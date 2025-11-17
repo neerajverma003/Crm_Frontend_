@@ -1702,7 +1702,7 @@ const AdminViewSelect = ({ selectedView, onChange }) => {
 /* -------------------------------------------------------------------------- */
 
 const EditModal = ({ attendance, onClose, onSave }) => {
-  const statusOptions = ["Present", "Absent", "Late", "Grace Present", "Half Day"];
+  const statusOptions = ["Present", "Absent", "Late", "Grace Present", "Half Day","Sunday" ,"Holiday"];
 
   const formatLocalDateTime = (dateString) => {
     if (!dateString) return "";
