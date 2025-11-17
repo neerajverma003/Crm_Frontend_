@@ -371,7 +371,7 @@ const Sidebar = () => {
       label: "Employee Management",
       icon: <FiBriefcase size={20} />,
       type: "dropdown",
-      url: "/employee-management",
+      // url: "/employee-management",
       children: [
         { id: "5-1", label: "Add Employee", url: "/user-management" },
         { id: "5-2", label: "Assign Company", url: "/employeecompany" },
@@ -431,8 +431,8 @@ const Sidebar = () => {
         { id: "10-2", label: "Create Destination", url: "/createdestination" },
         { id: "10-3", label: "Create Hotel", url: "/createhotel" },
         { id: "10-4", label: "Create Transport", url: "/createtransport" },
-        { id: "10-5", label: "Customer Creation", url: "/createcustomer" },
-        { id: "10-6", label: "Customer Data", url: "/customerdata" },
+        { id: "10-5", label: "Customer Creation", url: "/customer-creation" },
+        { id: "10-6", label: "Customer Data", url: "/customer-data" },
       ],
     },
 

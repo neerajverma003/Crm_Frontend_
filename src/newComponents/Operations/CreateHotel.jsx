@@ -879,7 +879,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react';
 import { Eye, Edit, Trash2 } from "lucide-react";
 
@@ -899,20 +898,15 @@ const CreateHotel = () => {
   const [destinations, setDestinations] = useState([]);
   const [hotels, setHotels] = useState([]);
 
-  // Filters
   const [filterType, setFilterType] = useState("All");
   const [filterState, setFilterState] = useState("All");
   const [filterRating, setFilterRating] = useState("All");
   const [searchName, setSearchName] = useState("");
 
-  // Edit mode
   const [editingHotelId, setEditingHotelId] = useState(null);
-
-  // View Modal
   const [viewData, setViewData] = useState(null);
-
-  // Edit Modal
   const [editData, setEditData] = useState(null);
+
   const [editFormData, setEditFormData] = useState({
     isDomestic: true,
     country: "India",
@@ -927,7 +921,6 @@ const CreateHotel = () => {
     hotelRating: ""
   });
 
-  // ---------------------------- FETCH APIs ----------------------------
   const fetchStates = async () => {
     try {
       const res = await fetch("http://localhost:4000/state/");
@@ -993,7 +986,6 @@ const CreateHotel = () => {
     setDestination("");
   }, [state]);
 
-  // --------------------------- CLEAR FORM ---------------------------
   const clearForm = () => {
     setHotelName("");
     setHotelPhone("");
@@ -1007,7 +999,6 @@ const CreateHotel = () => {
     if (!isDomestic) setCountry("");
   };
 
-  // --------------------------- SUBMIT / UPDATE HOTEL ---------------------------
   const handleSubmit = async () => {
     if (!state || !destination || !hotelName || !hotelPhone || !hotelAddress || !hotelEmail || !hotelWhatsapp || !contactPersonNumber  || !hotelRating) {
       alert("Please fill all required fields");
@@ -1029,19 +1020,16 @@ const CreateHotel = () => {
     };
 
     try {
-      let res, data;
-
-      // Create new hotel
-      res = await fetch("http://localhost:4000/hotel/", {
+      let res = await fetch("http://localhost:4000/hotel/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      data = await res.json();
+
+      const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create hotel!");
       alert("Hotel created successfully!");
 
-      // Clear form
       clearForm();
       fetchHotels();
     } catch (error) {
@@ -1050,7 +1038,6 @@ const CreateHotel = () => {
     }
   };
 
-  // --------------------------- FILTER HOTELS ---------------------------
   const filteredHotels = hotels.filter((h) => {
     const matchType = filterType === "All" || h.type === filterType;
     const matchState = filterState === "All" || h.state?.state === filterState;
@@ -1060,7 +1047,6 @@ const CreateHotel = () => {
     return matchType && matchState && matchRating && matchSearch;
   });
 
-  // --------------------------- VIEW, EDIT, DELETE ---------------------------
   const onView = async (hotelId) => {
     try {
       const res = await fetch(`http://localhost:4000/hotel/${hotelId}`);
@@ -1074,17 +1060,16 @@ const CreateHotel = () => {
   };
 
   const onEdit = async (hotelId) => {
-    // Close view modal immediately if open
     setViewData(null);
     
     try {
       const res = await fetch(`http://localhost:4000/hotel/${hotelId}`);
       if (!res.ok) throw new Error("Failed to fetch hotel for edit");
-      const data = await res.json();
 
-      // Set edit modal data
+      const data = await res.json();
       setEditData(data);
       setEditingHotelId(hotelId);
+
       setEditFormData({
         isDomestic: data.type === "Domestic",
         country: data.country || "",
@@ -1111,19 +1096,16 @@ const CreateHotel = () => {
       const res = await fetch(`http://localhost:4000/hotel/delete/${hotelId}`, {
         method: "DELETE",
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Delete failed");
+
       alert("Hotel deleted successfully!");
       fetchHotels();
     } catch (err) {
       console.error(err);
       alert("Error deleting hotel");
     }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingHotelId(null);
-    clearForm();
   };
 
   const handleUpdateHotel = async () => {
@@ -1147,13 +1129,15 @@ const CreateHotel = () => {
     };
 
     try {
-      const res = await fetch(`http://localhost:4000/update/${editingHotelId}`, {
+      const res = await fetch(`http://localhost:4000/hotel/update/${editingHotelId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Update failed");
+
       alert("Hotel updated successfully!");
       setEditData(null);
       setEditingHotelId(null);

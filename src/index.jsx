@@ -380,7 +380,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/createcustomer",
+        path: "/customer-creation",
         element: (
           <ProtectedRoute allowedRoles={roles.all}>
             <CreateCustomer />
@@ -388,7 +388,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/customerdata",
+        path: "/customer-data",
         element: (
           <ProtectedRoute allowedRoles={roles.all}>
             <CustomerData />
