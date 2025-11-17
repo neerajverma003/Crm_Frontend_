@@ -1,5 +1,3 @@
-// 
-
 import React, { useState } from "react";
 import { X } from "lucide-react";
 
@@ -10,13 +8,13 @@ const DailyExpense = () => {
         reason: "",
         paymentMethod: "",
         date: "",
-        billImage: null,
+        bill: null,
     });
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
-        if (name === "billImage") {
-            setFormData({ ...formData, billImage: files[0] });
+        if (name === "bill") {
+            setFormData({ ...formData, bill: files[0] });
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -32,18 +30,18 @@ const DailyExpense = () => {
         data.append("reason", formData.reason);
         data.append("PaymentMethod", formData.paymentMethod);
         data.append("date", formData.date);
-        if (formData.billImage) {
-            data.append("bill", formData.billImage); // must match backend multer field name
+        if (formData.bill) {
+            data.append("bill", formData.bill); // must match backend multer field name
         }
 
         // Send POST request
-        // const response = await fetch("http://localhost:4000/expense/expense", {
-        //     method: "POST",
-        //     body: data,
-        // });
+        const response = await fetch("http://localhost:4000/expense", {
+            method: "POST",
+            body: data,
+        });
 
-        // const result = await response.json();
-        const result = []
+        const result = await response.json();
+        // const result = []
 
         if (response.ok) {
             console.log("Expense Submitted:", result);
@@ -53,7 +51,7 @@ const DailyExpense = () => {
                 reason: "",
                 paymentMethod: "",
                 date: "",
-                billImage: null,
+                bill: null,
             });
         } else {
             console.error("Error:", result.message);
@@ -199,7 +197,7 @@ const DailyExpense = () => {
                                     <label className="block text-sm font-medium text-gray-700">Attach Bill</label>
                                     <input
                                         type="file"
-                                        name="billImage"
+                                        name="bill"
                                         accept="image/*"
                                         onChange={handleChange}
                                         className="w-full border rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-500"

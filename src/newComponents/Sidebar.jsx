@@ -411,7 +411,7 @@ const Sidebar = () => {
     // 🔹 Expense
     {
       id: 9,
-      label: "Expense",
+      label: "Accounts",
       icon: <FiDollarSign size={20} />,
       type: "dropdown",
       children: [
@@ -431,6 +431,8 @@ const Sidebar = () => {
         { id: "10-2", label: "Create Destination", url: "/createdestination" },
         { id: "10-3", label: "Create Hotel", url: "/createhotel" },
         { id: "10-4", label: "Create Transport", url: "/createtransport" },
+        { id: "10-5", label: "Customer Creation", url: "/createcustomer" },
+        { id: "10-6", label: "Customer Data", url: "/customerdata" },
       ],
     },
 
@@ -470,7 +472,7 @@ const Sidebar = () => {
                         onClick={() => setIsOpen(false)}
                       >
                         {item.icon}
-                        <span className="text-md">{item.label}</span>
+                        <span className="text-md font-bold">{item.label}</span>
                       </NavLink>
                       <button onClick={() => toggleDropdown(item.label)}>
                         {openDropdowns[item.label] ? (
@@ -514,7 +516,7 @@ const Sidebar = () => {
                     }
                   >
                     {item.icon}
-                    <span className="text-md">{item.label}</span>
+                    <span className="text-md font-bold">{item.label}</span>
                   </NavLink>
                 </li>
               )}
