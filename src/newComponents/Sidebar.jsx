@@ -88,7 +88,7 @@ const Sidebar = () => {
         { id: "5-1", label: "Add Employee", url: "/user-management" },
         { id: "5-2", label: "Assign Company", url: "/employeecompany" },
         { id: "5-3", label: "Assign Role", url: "/assignemployeerole" },
-        { id: "5-4", label: "Add Destination", url: "/adddestination" },
+        { id: "5-4", label: "Create Destination", url: "/createdestinationemployee" },
         { id: "5-5", label: "Assign Destination", url: "/assigndestination" },
       ],
     },
