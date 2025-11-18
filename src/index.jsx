@@ -54,6 +54,8 @@ import B2bAddCompany from "./newComponents/B2b/B2bAddCompany.jsx";
 import B2bDestination from "./newComponents/B2b/B2bDestination.jsx";
 import CreateCustomer from "./newComponents/Operations/CreateCustomer.jsx";
 import CustomerData from "./newComponents/Operations/CustomerData.jsx";
+import UploadMaterial from "./newComponents/Tutorials/UploadMaterial.jsx";
+import TrainingMaterial from "./newComponents/Tutorials/TrainingMaterial.jsx";
 // import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx"
 // ✅ Role groups
 const roles = {
@@ -392,6 +394,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={roles.all}>
             <CustomerData />
+          </ProtectedRoute>
+        ),
+      },
+  {
+        path: "/training-material",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <TrainingMaterial />
+          </ProtectedRoute>
+        ),
+      },
+        {
+        path: "/upload-material",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <UploadMaterial />
           </ProtectedRoute>
         ),
       },
