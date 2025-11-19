@@ -112,6 +112,17 @@ const Sidebar = () => {
 
     // 🔹 B2B (NEW SECTION)
     {
+      id: 8.2,
+      label: "Teams",
+      icon: <FiBriefcase size={20} />,
+      type: "dropdown",
+      children: [
+        { id: "b2b-1", label: "All Team", url: "/all-team" },
+        { id: "b2b-1", label: "Create Team", url: "/create-team" },
+        { id: "b2b-2", label: "Assign Team", url: "/b2b-addcompany" },
+      ],
+    },
+    {
       id: 8.5,
       label: "B2B",
       icon: <FiBriefcase size={20} />,

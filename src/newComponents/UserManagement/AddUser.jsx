@@ -1,13 +1,7 @@
-
-
-
-
 import React, { useState, useEffect, useCallback } from "react";
 import Modal from "./Modal.jsx";
 import axios from "axios";
-
 const ROLES = ["Admin", "Employee"];
-
 const AddUser = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,14 +24,9 @@ const AddUser = () => {
     isActive: true,
     showPassword: false,
   });
-
   const handleInputChange = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
-
-  // ---------------------------------------------
-  // 1️⃣ Get ALL Companies
-  // ---------------------------------------------
   const getCompanies = async () => {
     try {
       const response = await axios.get("http://localhost:4000/company/all");
@@ -47,10 +36,6 @@ const AddUser = () => {
       alert("Failed to fetch companies.");
     }
   };
-
-  // ---------------------------------------------
-  // 2️⃣ Get departments filtered by company
-  // ---------------------------------------------
   const getDepartments = async (companyId) => {
     if (!companyId) return;
 
@@ -59,25 +44,17 @@ const AddUser = () => {
 
       const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch departments");
-
       const data = await response.json();
-
-      // Backend returns: { departments: [{ _id, company, dep }] }
       const finalDepartments = (data.departments || []).map((d) => ({
         id: d._id,
         name: d.dep,
       }));
-
       setDepartments(finalDepartments);
     } catch (err) {
       console.error(err);
       setDepartments([]);
     }
   };
-
-  // ---------------------------------------------
-  // 3️⃣ Get designations filtered by company + department
-  // ---------------------------------------------
   const getDesignations = async (companyId, departmentId) => {
     if (!companyId || !departmentId) return;
 
@@ -88,27 +65,19 @@ const AddUser = () => {
       if (!response.ok) throw new Error("Failed to fetch designations");
 
       const data = await response.json();
-
-      // Backend returns: { designations: [{ _id, designation }] }
       const finalDesignations = (data.designations || []).map((d) => ({
         id: d._id,
         name: d.designation,
       }));
-
       setDesignations(finalDesignations);
     } catch (err) {
       console.error(err);
       setDesignations([]);
     }
   };
-
   useEffect(() => {
     getCompanies();
   }, []);
-
-  // ---------------------------------------------
-  // 4️⃣ Submit
-  // ---------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -116,9 +85,7 @@ const AddUser = () => {
       alert("Please select a role");
       return;
     }
-
     setIsSubmitting(true);
-
     const endpoint =
       formData.role === "Admin"
         ? "http://localhost:4000/addAdmin"
@@ -138,7 +105,6 @@ const AddUser = () => {
         accountActive: formData.isActive,
         role: formData.role,
       });
-
       alert(`${formData.role} added successfully!`);
       handleClose();
     } catch (error) {
@@ -148,10 +114,6 @@ const AddUser = () => {
       setIsSubmitting(false);
     }
   };
-
-  // ---------------------------------------------
-  // 5️⃣ Close form + reset all values
-  // ---------------------------------------------
   const handleClose = useCallback(() => {
     setIsOpen(false);
     setFormData({
@@ -172,10 +134,6 @@ const AddUser = () => {
     setDepartments([]);
     setDesignations([]);
   }, []);
-
-  // ---------------------------------------------
-  // UI
-  // ---------------------------------------------
   return (
     <>
       <button
@@ -190,10 +148,8 @@ const AddUser = () => {
           <h2 className="mb-6 text-xl font-semibold text-gray-900">
             Add New User
           </h2>
-
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {/* Full Name */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Full Name
@@ -208,8 +164,6 @@ const AddUser = () => {
                   required
                 />
               </div>
-
-              {/* Email */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Email
@@ -224,8 +178,6 @@ const AddUser = () => {
                   required
                 />
               </div>
-
-              {/* Phone */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Phone
@@ -237,8 +189,6 @@ const AddUser = () => {
                   className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2"
                 />
               </div>
-
-              {/* Official Number */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Official Number
@@ -252,8 +202,6 @@ const AddUser = () => {
                   className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2"
                 />
               </div>
-
-              {/* Emergency Number */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Emergency Number
@@ -267,8 +215,6 @@ const AddUser = () => {
                   className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2"
                 />
               </div>
-
-              {/* Company */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Company
@@ -298,8 +244,6 @@ const AddUser = () => {
                   ))}
                 </select>
               </div>
-
-              {/* Department */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Department
@@ -327,8 +271,6 @@ const AddUser = () => {
                   ))}
                 </select>
               </div>
-
-              {/* Designation */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Designation
@@ -351,8 +293,6 @@ const AddUser = () => {
                   ))}
                 </select>
               </div>
-
-              {/* Role */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Role
@@ -371,8 +311,6 @@ const AddUser = () => {
                   ))}
                 </select>
               </div>
-
-              {/* Password */}
               <div className="relative">
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Password
@@ -398,8 +336,6 @@ const AddUser = () => {
                 </button>
               </div>
             </div>
-
-            {/* Account Active */}
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -413,8 +349,6 @@ const AddUser = () => {
                 Account Active
               </label>
             </div>
-
-            {/* Buttons */}
             <div className="flex justify-end gap-3 border-t border-gray-200 pt-6">
               <button
                 type="button"
@@ -424,7 +358,6 @@ const AddUser = () => {
               >
                 Cancel
               </button>
-
               <button
                 type="submit"
                 className="rounded-md bg-black px-4 py-2 text-white hover:bg-gray-800 disabled:opacity-50"
@@ -439,5 +372,4 @@ const AddUser = () => {
     </>
   );
 };
-
 export default AddUser;

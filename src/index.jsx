@@ -59,6 +59,8 @@ import TrainingMaterial from "./newComponents/Tutorials/TrainingMaterial.jsx";
 import CreateDestinationEmployee from "./newComponents/employee/CreateDestinationEmployee.jsx";
 import AssignDestinationEmployee from "./newComponents/employee/AssignDestinationEmployee.jsx";
 // import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx"
+import CreateTeam from "./newComponents/Teams/CreateTeam.jsx";
+import AllTeam from "./newComponents/Teams/AllTeam.jsx";
 // ✅ Role groups
 const roles = {
   all: ["admin", "employee", "superadmin"],
@@ -428,6 +430,23 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={roles.all}>
             <UploadMaterial />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/create-team",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <CreateTeam/>
+          </ProtectedRoute>
+        ),
+      },
+
+        {
+        path: "/all-team",
+        element: (
+          <ProtectedRoute allowedRoles={roles.adminOnly}>
+            <AllTeam/>
           </ProtectedRoute>
         ),
       },
