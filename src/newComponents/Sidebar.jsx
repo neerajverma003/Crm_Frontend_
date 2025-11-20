@@ -52,6 +52,7 @@ const Sidebar = () => {
         { id: "2-2", label: "My Leads", url: "/addmylead" },
         { id: "2-3", label: "Today's Leads", url: "/todaysleads" },
         { id: "2-4", label: "Follow-Up Leads", url: "/followupleads" },
+        { id: "2-5", label: "Lead Reports", url: "/leadreports" },
       ],
     },
 

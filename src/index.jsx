@@ -61,6 +61,7 @@ import AssignDestinationEmployee from "./newComponents/employee/AssignDestinatio
 // import AssignEmployeeCompany from "./newComponents/employee/AssignEmployeeCompany.jsx"
 import CreateTeam from "./newComponents/Teams/CreateTeam.jsx";
 import AllTeam from "./newComponents/Teams/AllTeam.jsx";
+import LeadReport from "./newComponents/leadManagement/LeadReport.jsx";
 // ✅ Role groups
 const roles = {
   all: ["admin", "employee", "superadmin"],
@@ -163,6 +164,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={roles.all}>
             <ViewReportsShortcut />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/leadreports",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <LeadReport />
           </ProtectedRoute>
         ),
       },
