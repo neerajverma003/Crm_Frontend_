@@ -62,6 +62,8 @@ import AssignDestinationEmployee from "./newComponents/employee/AssignDestinatio
 import CreateTeam from "./newComponents/Teams/CreateTeam.jsx";
 import AllTeam from "./newComponents/Teams/AllTeam.jsx";
 import LeadReport from "./newComponents/leadManagement/LeadReport.jsx";
+import AddItinerary from "./newComponents/Itinerary/AddItinerary.jsx";
+import AllItinerary from "./newComponents/Itinerary/AllItinerary.jsx";
 // ✅ Role groups
 const roles = {
   all: ["admin", "employee", "superadmin"],
@@ -136,6 +138,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/add-itinerary",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <AddItinerary />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "/attendance",
         element: (
           <ProtectedRoute allowedRoles={roles.all}>
@@ -172,6 +182,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={roles.all}>
             <LeadReport />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/all-itinerary",
+        element: (
+          <ProtectedRoute allowedRoles={roles.all}>
+            <AllItinerary />
           </ProtectedRoute>
         ),
       },

@@ -110,7 +110,18 @@ const Sidebar = () => {
         { id: "8-4", label: "Add Role", url: "/addrole" },
       ],
     },
-
+    {
+      id: 8.1,
+      label: "Itianary",
+      icon: <FiBriefcase size={20} />,
+      type: "dropdown",
+      children: [
+        { id: "8-1", label: "Add Itinerary", url: "/add-itinerary" },
+        { id: "8-2", label: "All Itinerary", url: "/all-itinerary" },
+        // { id: "8-3", label: "Designation", url: "/designation" },
+        // { id: "8-4", label: "Add Role", url: "/addrole" },
+      ],
+    },
     // 🔹 B2B (NEW SECTION)
     {
       id: 8.2,
